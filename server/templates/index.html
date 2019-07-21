@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>JAS Jukebox</title>
+    <style lang="text/css">
+      @font-face {
+        font-family: "Digital 7";
+        src: url("assets/digital-7.ttf");
+      }
+      @font-face {
+        font-family: "LED Dot Matrix";
+        src: url("assets/LED Dot-Matrix.ttf");
+      }
+
+      html {
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        margin: 0;
+        padding: 0;
+        background-image: url("assets/images/background.png")
+      }
+
+      .screen .side {
+        margin-top: 16px;
+      }
+
+      .lcd {
+        color:#008dbc;
+        font-family: "LED Dot Matrix";
+        font-size: 16px;
+        line-height: 18px;
+      }
+
+      .now-playing {
+        position: absolute;
+        width: 519px;
+        top: 83px;
+        left: 395px;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .now-playing .split {
+        display: flex;
+        justify-content: space-between;
+      }
+
+      .coming-up {
+        position: absolute;
+        top: 83px;
+        left: 1020px;
+      }
+    </style>
+    {{{script
+    }}}
+  </head>
+  <body>
+    <div class="now-playing lcd side">
+      <div id="title-text">&nbsp;</div>
+      <div id="artist-text">&nbsp;</div>
+      <div id="album-text">&nbsp;</div>
+      <div class="split">
+        <div style="flex: 1">Run Time:</div>
+        <div style="flex: 0">
+          <span id="run-time-remaining">00:00</span>
+        </div>
+        &nbsp;/&nbsp;
+        <span id="run-time">
+          00:00
+        </span>
+      </div>
+      <div class="split">
+        <div>Coming Up: <span id="queue-length">0</span></div>
+        <div id="queue-runtime">00:00:00</div>
+      </div>
+    </div>
+
+    <div id="coming-up" class="coming-up lcd side"></div>
+    <div id="list"></div>
+    <script src="main.js"></script>
+  </body>
+</html>
