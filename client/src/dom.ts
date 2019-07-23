@@ -1,113 +1,148 @@
-import { Song, SongIdentifier, Library } from "./library";
-import library from './library';
-import action$ from './action$'
-import { secondsToTime } from "./time";
+import action$ from './action$';
+import { map, pipe, splitEvery } from './utilities';
+import { Song } from './library';
+import fitty from 'fitty';
 
-export const getElementById = (id: string) => document.getElementById(id);
+const ALPHABET = [
+  'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L',
+  'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X',
+  'Y', 'Z',
+];
 
-export const getLibraryElement = () => getElementById('list');
+const PER_CARD = 2;
+const ROWS = 10;
+const COLS = 6;
+const START = 0;
 
-export const getQueueElement = () => getElementById('queue');
+function alphanumericFromIndex(index: number) {
+  const row = Math.floor(index / 6);
+  const column = index % 6 + 1
 
-export const getNowPlayingElement = () => getElementById('now-playing');
-
-export function handleTitleClick(id: SongIdentifier) {
-  const song = library.get(id);
-  action$.next({ type: 'add', song });
+  return `${ALPHABET[row]}${column}`;
 }
 
-export function createSection(id: number, artist: string, title: string) {
-  const section = document.createElement('div');
+export default pipe(
+  /** @todo Can remove once we add filtering and ordering. */
+  (songs) => {
+    return songs.slice(START, PER_CARD * ROWS * COLS)
+  },
 
-  const titleSpan = createTitleSpan(`${title} by ${artist}`);
+  map((song, idx) => ({
+    ...song,
+    key: alphanumericFromIndex(idx),
+  })),
 
-  const button = createQueueButton(id);
+  splitEvery(2),
+  splitEvery(6),
+  map(createRowEl),
+  take(10),
+  addRowElsToBoard,
+  fitText
+);
 
-  section.append(titleSpan, button);
-
-  return section;
+function fitText(rows) {
+  fitty('.fit', { minSize: 6, maxSize: 18 });
+  return rows;
 }
 
-export function createTitleSpan(title: string) {
-  const span = document.createElement('span');
-  span.append(title);
-  return span;
-}
-
-export function createQueueButton(id: number) {
-  const button = document.createElement('button');
-  button.append('Enqueue');
-  button.onclick = function name(e: MouseEvent) {
-    handleTitleClick(id);
+function take(count: number): any {
+  return (rows) => {
+    return rows.slice(0, count);
   };
-
-  return button;
 }
 
-export function ComingUp(props: { queue: Song[] }) {
-  const { queue } = props;
+function addRowElsToBoard(rows: HTMLDivElement[]) {
+  const board = document.getElementById('board');
 
-  const queueEl = getQueueElement();
-
-  while (queueEl.lastChild) {
-    queueEl.removeChild(queueEl.lastChild);
+  while (board.lastChild) {
+    board.removeChild(board.lastChild);
   }
 
-  const list = document.createElement('ol');
+  board.append(...rows);
 
-  const items = queue.map(({ title, artist }) => {
-    const titleElement = document.createElement('li');
-    titleElement.append(`${title} by ${artist}`);
-    return titleElement;
-  });
-
-  list.append(...items);
-
-  queueEl.append(list);
+  return rows;
 }
 
-export function NowPlaying(song: Song) {
-  const { title, artist, album, duration } = song;
+function createRowEl(row): any {
+  const tiles = row.map(createTileElsFromPairs);
 
-  const nowPlayingEl = getNowPlayingElement();
+  const rowEl = document.createElement('div');
+  rowEl.setAttribute('class', 'row');
+  rowEl.append(...tiles);
 
-  while (nowPlayingEl.lastChild) {
-    nowPlayingEl.removeChild(nowPlayingEl.lastChild);
-  }
-
-  const titleEl = document.createElement('p')
-  titleEl.append(`Title: ${title}`)
-
-  const artistEl = document.createElement('p')
-  artistEl.append(`Artist: ${artist}`)
-
-  const albumEl = document.createElement('p')
-  albumEl.append(`Title: ${album}`)
-
-  const x = secondsToTime(duration);
-  const hh = String(x[0]).padStart(2, '0');
-  const mm = String(x[1]).padStart(2, '0');
-  const ss = String(x[2]).padStart(2, '0');
-  const timeEl = document.createElement('p')
-  timeEl.append(`Time: ${hh}:${mm}:${ss}`);
-
-  nowPlayingEl.append(titleEl, artistEl, albumEl, timeEl);
+  return rowEl;
 }
 
-export function CreateLibrary(songs: Library) {
-  const libraryEl = getLibraryElement();
+function createTileElsFromPairs([firstSong, secondSong]) {
+  const containerEl = document.createElement('div');
+  containerEl.setAttribute('style', 'display:flex;');
 
-  while(libraryEl.lastChild){
-    libraryEl.removeChild(libraryEl.lastChild);
+  const selectorEl = document.createElement('div');
+  selectorEl.setAttribute('class', 'selector');
+
+  const topEl = document.createElement('div');
+  topEl.innerText = firstSong.key;
+
+  const bottomEl = document.createElement('div');
+  bottomEl.innerText = secondSong.key;
+
+  selectorEl.append(topEl, bottomEl);
+
+  const tileEl = document.createElement('div');
+  tileEl.setAttribute('class', 'tile');
+
+  tileEl.append(
+    createTitleEl(firstSong),
+    createArtistEl(firstSong.artist),
+    createTitleEl(secondSong),
+  );
+
+  containerEl.append(
+    selectorEl,
+    tileEl,
+  );
+
+  return containerEl;
+}
+
+function createArtistEl(text: string) {
+  const el = document.createElement('div');
+  el.setAttribute('class', 'artist');
+
+  const el2 = document.createElement('div');
+
+  const span = document.createElement('span');
+  span.setAttribute('class', 'fit');
+  span.innerText = text.toUpperCase();
+
+  el2.append(span);
+
+  el.append(el2)
+
+  return el;
+}
+
+function createTitleEl(song: Song | null) {
+  const el = document.createElement('div');
+  el.setAttribute('class', 'title');
+
+  const el2 = document.createElement('div');
+
+  const span = document.createElement('span');
+  span.setAttribute('class', 'fit');
+
+  if (song.title) {
+    span.innerText = song.title.toUpperCase();
+    el2.onclick = function () {
+      action$.next({ type: 'add', song: song });
+    };
+  } else {
+    span.innerHTML = '&nbsp;';
   }
 
-  const sections = [];
-  for (const [songId, song] of songs) {
-    sections.push(
-      createSection(songId, song.artist, song.title),
-    );
-  }
+  el2.append(span);
 
-  libraryEl.append(...sections);
+  el.append(el2);
 
+  return el;
 }

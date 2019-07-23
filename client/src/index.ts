@@ -2,12 +2,12 @@ import { interval, NEVER } from 'rxjs';
 import { distinctUntilChanged, filter, scan, switchMap, tap } from 'rxjs/operators';
 import action$ from './action$';
 import comingUp$ from './comingUp$';
-import { CreateLibrary } from './dom';
-import library from './library';
 import playNext$ from './playNext$';
 import { durationToDispaly } from './time';
+import createBoard from './dom'
+import library from './library';
 
-CreateLibrary(library);
+createBoard(library);
 
 action$
   .pipe(
@@ -54,7 +54,7 @@ playNext$
       setRuntime(duration);
     });
 
-    sound.play('intro');
+    sound.play();
   });
 
 comingUp$
@@ -68,7 +68,7 @@ comingUp$
       }
 
       el.append(
-        ...queue.map(({ title }) => {
+        ...queue.slice(0, 5).map(({ title }) => {
           const el = document.createElement('div');
           el.innerText = title;
           return el;

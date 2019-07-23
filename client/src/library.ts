@@ -1,10 +1,12 @@
 /// <reference path="./globals.d.ts" />
 
 import { Howl } from 'howler'
+import { normalizeLibrary } from './utilities';
 
 export type SongIdentifier = number;
 
 export interface Song {
+  id: number;
   path: string;
   title: string;
   artist: string;
@@ -14,24 +16,28 @@ export interface Song {
   howl: Howl;
 }
 
-export type Library = Map<SongIdentifier, Song>;
-
-const library: Library = new Map();
+export type Library = Song[];
 
 const files = window.__FILES__;
 
-files.forEach((file, idx) => {
-  const { path } = file;
+console.time('generate library');
+const songs = files
+  .map((file, id) => {
+    const { path } = file;
 
-  const obj: Song = {
-    ...file,
-    howl: () => new Howl({
-      src: [path],
-      sprite: { intro: [0, 5000] },
-    }),
-  };
+    return {
+      id,
+      ...file,
+      howl: () => new Howl({
+        src: [path],
+        // sprite: { intro: [0, 5000] },
+      }),
+    };
+  });
+console.timeEnd('generate library')
 
-  library.set(idx, obj);
-});
+console.time('normalize library')
+const library = normalizeLibrary(songs);
+console.timeEnd('normalize library');
 
 export default library;
