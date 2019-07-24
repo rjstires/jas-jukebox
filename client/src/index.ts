@@ -1,33 +1,105 @@
-import { fromEvent, interval, merge, NEVER, pipe } from 'rxjs';
-import { distinctUntilChanged, filter, map, mapTo, scan, startWith, switchMap } from 'rxjs/operators';
+import { fromEvent, interval, merge, NEVER, of } from 'rxjs';
+import { distinctUntilChanged, filter, map, mapTo, scan, startWith, switchMap, tap, withLatestFrom } from 'rxjs/operators';
 import action$ from './action$';
 import comingUp$ from './comingUp$';
-import { PER_PAGE } from './constants';
-import createBoard, { nextButtonEl, previousButtonEl, setAlbum, setArtist, setComingUp, setQueueLength, setQueueRuntime, setRunningTime, setRuntime, setTitle } from './dom';
+import { COLS, PER_PAGE } from './constants';
+import createBoard, { createSelectionButtons, getNextButtonEl, getPreviousButtonEl, getSelectControlEl, getSelectionControlEls, setAlbum, setArtist, setComingUp, setQueueLength, setQueueRuntime, setRunningTime, setRuntime, setTitle, updateSelectionText } from './dom';
 import library from './library';
 import playNext$ from './playNext$';
-import { carousel } from './utilities';
+import { alphanumericFromIndex, carousel, defaultToHyphen, fill, pipe } from './utilities';
+import { Howler } from 'howler'
+const createFilledPageSlice = (pageNumber, perPage, songs) => pipe(
+  library => library.slice(pageNumber * perPage, pageNumber * perPage + perPage),
+  fill(PER_PAGE),
+  (songs) => songs.map((song, idx) => ({ ...song, key: alphanumericFromIndex(COLS, idx) })),
+)(songs);
 
 export const SONGS_COUNT = library.length;
 
 export const PAGES = Math.ceil(SONGS_COUNT / PER_PAGE);
 
-const changePage = carousel(0, PAGES - 1, 0);
+const changePage = carousel(0, PAGES - 1);
 
-merge(
-  fromEvent(previousButtonEl, 'click')
-    .pipe(mapTo(-1)),
-  fromEvent(nextButtonEl, 'click')
+interface ElementTarget extends EventTarget {
+  value: string;
+  id?: string;
+  class?: string;
+}
+
+interface ElementEvent extends Event {
+  target: ElementTarget;
+}
+
+createSelectionButtons();
+
+const previousPageClick$ = fromEvent<ElementEvent>(getPreviousButtonEl(), 'click');
+
+const nextPageClick$ = fromEvent<ElementEvent>(getNextButtonEl(), 'click');
+
+const selectionControlClick$ = fromEvent<ElementEvent>(getSelectionControlEls(), 'click');
+
+const selectControlClick$ = fromEvent<ElementEvent>(getSelectControlEl(), 'click');
+
+const mapSelectionToKey = ([left, right]) =>
+  defaultToHyphen(left) + defaultToHyphen(right);
+
+const selection$ =
+  selectionControlClick$
+    .pipe(
+      map((e: ElementEvent) => e.target.value),
+      startWith([null, null]),
+      filter((value) => value !== 'select'),
+      scan(([_, prevRight], value) => [prevRight, value]),
+      tap(pipe(mapSelectionToKey, updateSelectionText)),
+      tap(console.log),
+    );
+
+const pageNumber$ = merge(
+  nextPageClick$
     .pipe(mapTo(1)),
+
+  previousPageClick$
+    .pipe(mapTo(-1)),
 )
   .pipe(
+    scan((current, direction) => changePage(current, direction), 0),
     startWith(0),
-    map((direction) => changePage(direction)),
+  );
+
+const songsPage$ = merge(
+  previousPageClick$,
+  nextPageClick$,
+)
+  .pipe(
+    startWith(null),
+    withLatestFrom(
+      of(library),
+      pageNumber$,
+      of(PER_PAGE),
+      (event, library, pageNumber, perPage) => ({ event, library, pageNumber, perPage }),
+    ),
+    map((state) => createFilledPageSlice(state.pageNumber, state.perPage, state.library)),
+  );
+
+songsPage$
+  .subscribe(createBoard);
+
+selectControlClick$
+  .pipe(
+    withLatestFrom(
+      selection$,
+      songsPage$,
+    ),
+    tap(() => updateSelectionText('--'))
   )
-  .subscribe(pipe(
-    (page: number) => library.slice(page * PER_PAGE, page * PER_PAGE + PER_PAGE),
-    createBoard,
-  ));
+  .subscribe(([_, selection, songsPage]) => {
+    const key = mapSelectionToKey(selection);
+    const song = songsPage.find(s => s.key === key);
+
+    if(song && song.title){
+      action$.next({ type: 'add', song });
+    }
+  });
 
 action$
   .pipe(
@@ -48,6 +120,25 @@ action$
   .subscribe((seconds) => {
     setRunningTime(seconds);
   });
+
+
+  fromEvent(
+    document.getElementById('control:skip'),
+    'click'
+  )
+    .subscribe(() => {
+      Howler.unload();
+
+      setTitle();
+      setArtist();
+      setAlbum();
+      setRuntime(0);
+      setRunningTime(0);
+
+      action$.next({ type: 'remove' });
+      action$.next({ type: 'timer:stop' });
+
+    });
 
 playNext$
   .subscribe(({ howl, title, artist, album, duration }) => {

@@ -1,21 +1,19 @@
 import fitty from 'fitty';
 import action$ from './action$';
-import { COLS, PER_PAGE } from './constants';
 import { Song } from './library';
-import { alphanumericFromIndex, fill, map, pipe, splitEvery } from './utilities';
 import { durationToDispaly } from './time';
+import { ALPHABET, map, pipe, splitEvery } from './utilities';
 
 /** Selectors */
-export const previousButtonEl = document.getElementById('control:previous-page');
+export const getPreviousButtonEl = () => document.getElementById('control:previous-page');
 
-export const nextButtonEl = document.getElementById('control:next-page');
+export const getNextButtonEl = () => document.getElementById('control:next-page');
+
+export const getSelectionControlEls = () => document.getElementsByClassName('selection-control');
+
+export const getSelectControlEl = () => document.getElementById('control:select');
 
 export default pipe(
-  fill(PER_PAGE),
-  map((song, idx) => ({
-    ...song,
-    key: alphanumericFromIndex(COLS, idx),
-  })),
   splitEvery(2),
   splitEvery(6),
   map(createRowEl),
@@ -29,7 +27,7 @@ function fitText(rows) {
 }
 
 function addRowElsToBoard(rows: HTMLDivElement[]) {
-  const board = document.getElementById('board');
+  const board = document.getElementById('section:board');
 
   while (board.lastChild) {
     board.removeChild(board.lastChild);
@@ -184,3 +182,63 @@ export function setComingUp(queue: any[]) {
     return el;
   }));
 }
+
+function createSelectSelectionButton() {
+  const selectEl = document.createElement('button');
+  selectEl.setAttribute('class', 'control-button');
+  selectEl.setAttribute('id', 'control:select');
+  selectEl.innerText = "SELECT";
+  return selectEl;
+}
+
+function createAlphaSelectionButtons() {
+  let idx = 0;
+  const elements = [];
+  const alphaIndex = 20; /** T */
+  while (idx < alphaIndex) {
+    const buttonEl = document.createElement('button');
+    buttonEl.setAttribute('class', 'selection-control control-button white');
+    buttonEl.setAttribute('id', `control:select:aplha:${ALPHABET[idx]}`);
+    buttonEl.setAttribute('value', ALPHABET[idx]);
+    buttonEl.innerText = ALPHABET[idx];
+    elements.push(buttonEl);
+    idx += 1;
+  }
+  return elements;
+}
+
+function createNumericSelectionButtons() {
+  let idx = 1;
+  const elements = [];
+
+  while (idx <= 6) {
+    const buttonEl = document.createElement('button');
+    buttonEl.setAttribute('class', 'selection-control control-button white');
+    buttonEl.setAttribute('id', `control:select:numeric:${String(idx)}`);
+    buttonEl.setAttribute('value', String(idx));
+    buttonEl.innerText = String(idx);
+    elements.push(buttonEl);
+    idx += 1;
+  }
+
+  return elements;
+}
+
+export function createSelectionButtons() {
+  const footerEl = document.getElementById('section:footer');
+  while (footerEl.lastChild) {
+    footerEl.removeChild(footerEl.lastChild);
+  }
+
+  footerEl.append(
+    ...createAlphaSelectionButtons(),
+    createSelectSelectionButton(),
+    ...createNumericSelectionButtons()
+  );
+}
+
+export const updateSelectionText = (key) => {
+  const el = document.getElementById('display:selection')
+  el.innerText = key;
+  return key;
+};;

@@ -134,9 +134,8 @@ export function splitEvery(n) {
   }
 }
 
-export function carousel(min: number, max: number, init: number = 0) {
-  let curr = init;
-  return function (step: number) {
+export function carousel(min: number, max: number) {
+  return function (curr: number, step: number) {
     const next = curr + step;
 
     if (step === 0) {
@@ -207,3 +206,36 @@ export const alphanumericFromIndex = pipe(
   getRowAndColumn,
   ([row, col]) => `${ALPHABET[row]}${col}`
 );
+
+export function when(pred, whenFn) {
+  return function (value) {
+    return pred(value) ? whenFn(value) : value;
+  }
+}
+
+export function unless(pred, unlessFn) {
+  return function (value) {
+    return pred(value) ? value : unlessFn(value);
+  }
+}
+
+export function ifElse(pred, whenFn, unlessFn) {
+  return function (value) {
+    return pred(value) ? whenFn(value) : unlessFn(value);
+  }
+}
+
+export function defaultTo(defaultValue: any) {
+  return function (v: undefined | null | any) {
+    return v ? v : defaultValue;
+  }
+}
+
+export const defaultToHyphen = defaultTo('-');
+
+export function aside(fn: Function) {
+  return function (value: any) {
+    fn(value);
+    return value;
+  }
+}
