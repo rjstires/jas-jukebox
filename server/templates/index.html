@@ -8,27 +8,54 @@
     {{{script}}}
   </head>
   <body>
-    <div class="now-playing lcd side">
-      <div id="title-text">&nbsp;</div>
-      <div id="artist-text">&nbsp;</div>
-      <div id="album-text">&nbsp;</div>
-      <div class="split">
-        <div style="flex: 1">Run Time:</div>
-        <div style="flex: 0">
-          <span id="run-time-remaining">00:00</span>
-        </div>
-        &nbsp;/&nbsp;
-        <span id="run-time">
-          00:00
-        </span>
+
+    <div class="header">
+      <div class="side">
+          <button id="control:change" class="control-button change">CHANGE</button>
       </div>
-      <div class="split">
-        <div>Coming Up: <span id="queue-length">0</span></div>
-        <div id="queue-runtime">00:00</div>
+
+      <div class="center">
+        <div class="lcd">
+          <div class="now-playing">
+            <div class="title text-center">NOW PLAYING</div>
+            <div id="title-text">&nbsp;</div>
+            <div id="artist-text">&nbsp;</div>
+            <div id="album-text">&nbsp;</div>
+            <div class="split">
+              <div style="flex: 1">Run Time:</div>
+              <div style="flex: 0">
+                <span id="run-time-remaining">00:00</span>
+              </div>
+              &nbsp;/&nbsp;
+              <span id="run-time">
+                00:00
+              </span>
+            </div>
+            <div class="split">
+              <div>Coming Up: <span id="queue-length">0</span></div>
+              <div id="queue-runtime">00:00</div>
+            </div>
+          </div>
+          <div class="credit-selection">
+            <div class="title">CREDITS</div>
+            <div id="display:credits">01</div>
+            <div class="title">SELECTION</div>
+            <div id="display:selection">--</div>
+          </div>
+          <div class="coming-up">
+            <div class="title">COMING UP</div>
+            <div id="display:list-coming-up"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="side">
+          <button id="control:previous-page" class="control-button previous">&lt;</button>
+          <button id="control:skip" class="control-button skip">SKIP</button>
+          <button id="control:next-page" class="control-button next">&gt;</button>
       </div>
     </div>
 
-    <div id="coming-up" class="coming-up lcd side"></div>
     <div id="board"></div>
     <script src="main.js"></script>
   </body>

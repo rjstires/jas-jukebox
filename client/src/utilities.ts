@@ -1,5 +1,11 @@
 type Pred<T = any> = (v: T) => boolean;
 
+export const ALPHABET = [
+  'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L',
+  'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X',
+  'Y', 'Z',
+];
+
 export const push = <T>(list: T[] = [], item: T): T[] => [...list, item];
 
 export const isEmpty = (v: any[]) => v.length === 0;
@@ -73,7 +79,7 @@ export function groupBy(key) {
   }
 }
 
-function toPairs(obj) {
+export function toPairs(obj) {
   return Object.entries(obj);
 }
 
@@ -83,14 +89,14 @@ export function map(iterator) {
   }
 }
 
-function tap(fn) {
+export function tap(fn) {
   return function (val) {
     fn(val);
     return val;
   }
 }
 
-function flatten() {
+export function flatten() {
   return function (arr) {
     let result = [];
     const len = arr.length;
@@ -108,7 +114,7 @@ export function normalizeLibrary(songs) {
   return pipe(
     groupBy('artist'),
     toPairs,
-    map(([key, value]: [string, object[]]) => value.length % 2 === 0 ? value : push(value, null)),
+    map(([_, value]: [string, object[]]) => value.length % 2 === 0 ? value : push(value, null)),
     flatten(),
   )(songs)
 }
@@ -127,3 +133,77 @@ export function splitEvery(n) {
     return result;
   }
 }
+
+export function carousel(min: number, max: number, init: number = 0) {
+  let curr = init;
+  return function (step: number) {
+    const next = curr + step;
+
+    if (step === 0) {
+      return curr;
+    }
+
+    curr = step < 0
+      ? next < min
+        ? max
+        : next
+      : next > max
+        ? min
+        : next;
+
+    return curr;
+  }
+}
+
+
+export function take(count: number): any {
+  return (rows) => {
+    return rows.slice(0, count);
+  };
+}
+
+export function always(v) {
+  return function () {
+    return v;
+  }
+}
+
+export function times(fn, times) {
+  let idx = 0;
+  const result = [];
+
+  while (idx < times) {
+    result.push(fn(idx));
+    idx += 1;
+  }
+
+  return result;
+}
+
+export function repeat(value, n) {
+  return times(always(value), n);
+}
+
+export function fill(length: number, value: any = null) {
+  return function (list: any[]) {
+    const diff = length - list.length;
+
+    if (diff > 0) {
+      const fill = repeat(value, diff);
+      return list.concat(fill);
+    }
+
+    return list;
+  }
+}
+
+export function getRowAndColumn(numberColumns: number, index: number) {
+  const row = Math.floor(index / numberColumns);
+  const col = index % numberColumns + 1
+  return [row, col];
+}
+
+export const alphanumericFromIndex = pipe(
+  getRowAndColumn,
+  ([row, col]) => `${ALPHABET[row]}${col}`
+);

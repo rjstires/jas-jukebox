@@ -1,13 +1,33 @@
-import { interval, NEVER } from 'rxjs';
-import { distinctUntilChanged, filter, scan, switchMap, tap } from 'rxjs/operators';
+import { fromEvent, interval, merge, NEVER, pipe } from 'rxjs';
+import { distinctUntilChanged, filter, map, mapTo, scan, startWith, switchMap } from 'rxjs/operators';
 import action$ from './action$';
 import comingUp$ from './comingUp$';
-import playNext$ from './playNext$';
-import { durationToDispaly } from './time';
-import createBoard from './dom'
+import { PER_PAGE } from './constants';
+import createBoard, { nextButtonEl, previousButtonEl, setAlbum, setArtist, setComingUp, setQueueLength, setQueueRuntime, setRunningTime, setRuntime, setTitle } from './dom';
 import library from './library';
+import playNext$ from './playNext$';
+import { carousel } from './utilities';
 
-createBoard(library);
+export const SONGS_COUNT = library.length;
+
+export const PAGES = Math.ceil(SONGS_COUNT / PER_PAGE);
+
+const changePage = carousel(0, PAGES - 1, 0);
+
+merge(
+  fromEvent(previousButtonEl, 'click')
+    .pipe(mapTo(-1)),
+  fromEvent(nextButtonEl, 'click')
+    .pipe(mapTo(1)),
+)
+  .pipe(
+    startWith(0),
+    map((direction) => changePage(direction)),
+  )
+  .subscribe(pipe(
+    (page: number) => library.slice(page * PER_PAGE, page * PER_PAGE + PER_PAGE),
+    createBoard,
+  ));
 
 action$
   .pipe(
@@ -24,11 +44,10 @@ action$
       return isRunning;
     }, false),
     switchMap((isRunning) => isRunning ? interval(1000) : NEVER),
-    tap((seconds) => {
-      setRunningTime(seconds);
-    })
   )
-  .subscribe();
+  .subscribe((seconds) => {
+    setRunningTime(seconds);
+  });
 
 playNext$
   .subscribe(({ howl, title, artist, album, duration }) => {
@@ -60,68 +79,12 @@ playNext$
 comingUp$
   .pipe(
     distinctUntilChanged(),
-
-    tap((queue) => {
-      const el = document.getElementById('coming-up');
-      while (el.lastChild) {
-        el.removeChild(el.lastChild);
-      }
-
-      el.append(
-        ...queue.slice(0, 5).map(({ title }) => {
-          const el = document.createElement('div');
-          el.innerText = title;
-          return el;
-        })
-      )
-    }),
-
-    tap((queue) => {
-      const len = queue.length;
-      const el = document.getElementById('queue-length');
-      el.innerText = String(len);
-    }),
-
-    tap((queue) => {
-      const el = document.getElementById('queue-runtime');
-      const totalDuration = queue.reduce((result, { duration }) => result + duration, 0);
-      el.innerText = durationToDispaly(totalDuration);
-    }),
   )
-  .subscribe();
+  .subscribe((queue) => {
+    const len = queue.length;
+    const totalDuration = queue.reduce((result, { duration }) => result + duration, 0);
 
-function safelySetInnerText(el: HTMLElement, v?: string) {
-  return v ? el.innerText = v : el.innerHTML = '&nbsp;';
-}
-
-function setRuntime(duration: any) {
-  const el = document.getElementById('run-time');
-
-  safelySetInnerText(
-    el,
-    durationToDispaly(duration)
-  )
-}
-
-function setAlbum(album?: string) {
-  const el = document.getElementById('album-text');
-  safelySetInnerText(el, album);;
-}
-
-function setArtist(artist?: string) {
-  const el = document.getElementById('artist-text');
-  safelySetInnerText(el, artist);
-}
-
-function setTitle(title?: string) {
-  const el = document.getElementById('title-text');
-  safelySetInnerText(el, title);
-}
-
-function setRunningTime(seconds: number) {
-  const el = document.getElementById('run-time-remaining');
-  safelySetInnerText(
-    el,
-    durationToDispaly(seconds),
-  );
-}
+    setComingUp(queue);
+    setQueueLength(len);
+    setQueueRuntime(totalDuration);
+  });

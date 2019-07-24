@@ -1,41 +1,24 @@
-import action$ from './action$';
-import { map, pipe, splitEvery } from './utilities';
-import { Song } from './library';
 import fitty from 'fitty';
+import action$ from './action$';
+import { COLS, PER_PAGE } from './constants';
+import { Song } from './library';
+import { alphanumericFromIndex, fill, map, pipe, splitEvery } from './utilities';
+import { durationToDispaly } from './time';
 
-const ALPHABET = [
-  'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L',
-  'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X',
-  'Y', 'Z',
-];
+/** Selectors */
+export const previousButtonEl = document.getElementById('control:previous-page');
 
-const PER_CARD = 2;
-const ROWS = 10;
-const COLS = 6;
-const START = 0;
-
-function alphanumericFromIndex(index: number) {
-  const row = Math.floor(index / 6);
-  const column = index % 6 + 1
-
-  return `${ALPHABET[row]}${column}`;
-}
+export const nextButtonEl = document.getElementById('control:next-page');
 
 export default pipe(
-  /** @todo Can remove once we add filtering and ordering. */
-  (songs) => {
-    return songs.slice(START, PER_CARD * ROWS * COLS)
-  },
-
+  fill(PER_PAGE),
   map((song, idx) => ({
     ...song,
-    key: alphanumericFromIndex(idx),
+    key: alphanumericFromIndex(COLS, idx),
   })),
-
   splitEvery(2),
   splitEvery(6),
   map(createRowEl),
-  take(10),
   addRowElsToBoard,
   fitText
 );
@@ -43,12 +26,6 @@ export default pipe(
 function fitText(rows) {
   fitty('.fit', { minSize: 6, maxSize: 18 });
   return rows;
-}
-
-function take(count: number): any {
-  return (rows) => {
-    return rows.slice(0, count);
-  };
 }
 
 function addRowElsToBoard(rows: HTMLDivElement[]) {
@@ -63,7 +40,7 @@ function addRowElsToBoard(rows: HTMLDivElement[]) {
   return rows;
 }
 
-function createRowEl(row): any {
+function createRowEl(row) {
   const tiles = row.map(createTileElsFromPairs);
 
   const rowEl = document.createElement('div');
@@ -113,7 +90,9 @@ function createArtistEl(text: string) {
 
   const span = document.createElement('span');
   span.setAttribute('class', 'fit');
-  span.innerText = text.toUpperCase();
+  span.innerHTML = text
+    ? text.toUpperCase()
+    : '&nbsp;';
 
   el2.append(span);
 
@@ -122,7 +101,7 @@ function createArtistEl(text: string) {
   return el;
 }
 
-function createTitleEl(song: Song | null) {
+export function createTitleEl(song: Song | null) {
   const el = document.createElement('div');
   el.setAttribute('class', 'title');
 
@@ -131,13 +110,14 @@ function createTitleEl(song: Song | null) {
   const span = document.createElement('span');
   span.setAttribute('class', 'fit');
 
-  if (song.title) {
-    span.innerText = song.title.toUpperCase();
+  if (song) {
     el2.onclick = function () {
       action$.next({ type: 'add', song: song });
     };
-  } else {
-    span.innerHTML = '&nbsp;';
+
+    span.innerHTML = song.title
+      ? song.title.toUpperCase()
+      : '&nbsp;';
   }
 
   el2.append(span);
@@ -145,4 +125,62 @@ function createTitleEl(song: Song | null) {
   el.append(el2);
 
   return el;
+}
+
+export function keepSpace(el: HTMLElement, v?: string) {
+  return el.innerHTML = v || '&nbsp;';
+}
+
+export function setRuntime(duration: any) {
+  const el = document.getElementById('run-time');
+
+  keepSpace(
+    el,
+    durationToDispaly(duration)
+  )
+}
+
+export function setAlbum(album?: string) {
+  const el = document.getElementById('album-text');
+  keepSpace(el, album);
+}
+
+export function setArtist(artist?: string) {
+  const el = document.getElementById('artist-text');
+  keepSpace(el, artist);
+}
+
+export function setTitle(title?: string) {
+  const el = document.getElementById('title-text');
+  keepSpace(el, title);
+}
+
+export function setRunningTime(seconds: number) {
+  const el = document.getElementById('run-time-remaining');
+  keepSpace(
+    el,
+    durationToDispaly(seconds),
+  );
+}
+
+export function setQueueRuntime(totalDuration: any) {
+  const el = document.getElementById('queue-runtime');
+  el.innerText = durationToDispaly(totalDuration);
+}
+
+export function setQueueLength(len: number) {
+  const el = document.getElementById('queue-length');
+  el.innerText = String(len);
+}
+
+export function setComingUp(queue: any[]) {
+  const el = document.getElementById('display:list-coming-up');
+  while (el.lastChild) {
+    el.removeChild(el.lastChild);
+  }
+  el.append(...queue.slice(0, 5).map(({ title }) => {
+    const el = document.createElement('div');
+    el.innerText = title;
+    return el;
+  }));
 }
