@@ -1,0 +1,195 @@
+@font-face {
+  font-family: "LED Dot Matrix";
+  src: url("./LED Dot-Matrix.ttf");
+}
+
+@font-face {
+  font-family: 'Steelfish';
+  src: url("./steelfis.ttf");
+}
+
+html {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  width: 1920px;
+  height: 1080px;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-repeat: no-repeat;
+}
+
+.board {
+  background-color: #d2d1d2;
+  background: -webkit-linear-gradient(top, rgba(242,246,248,1) 0%,rgba(216,225,231,1) 34%,rgba(166,180,188,1) 73%,rgba(224,239,249,1) 100%);
+  display: flex;
+  flex-wrap: wrap;
+  padding-bottom: 8px;
+}
+
+.board .row {
+  display: flex;
+  margin-top: 8px;
+}
+
+.fit {
+  white-space: nowrap;
+  display: inline-block;
+}
+
+.selector {
+  flex: 1 auto;
+  line-height: 34px;
+
+  font-family: "Steelfish";
+  font-size: 22px;
+  color: #be2a2c;
+  text-align: center;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+
+  width: 25px;
+}
+
+.tile {
+    background: white;
+    background-image: url("./images/tile-background.png");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: auto;
+    width: 288px;
+    border: solid 3px #31a0de;
+    text-align: center;
+    line-height: 20px;
+    box-shadow: 2px 2px 4px #7d7d7d6e;
+}
+
+.tile .title {
+  padding: 0 4px;
+  cursor: pointer;
+}
+
+.tile .artist {
+  padding: 0 4px;
+}
+
+.control-button {
+  outline: none;
+  text-shadow: 1px 1px 0px black;
+  font-family: arial;
+  color: #FFFFFF;
+  font-size: 14px;
+  box-shadow: 1px 1px 4px #000000;
+  padding: 16px;
+  -moz-border-radius: 2px;
+  -webkit-border-radius: 2px;
+  border-radius: 2px;
+  border: 3px outset #BE2A2C;
+  background: #BE2A2C;
+  background: -webkit-gradient(linear, left top, left bottom, from(#BE2A2C), to(#912122));
+}
+.control-button.white {
+  color: #BE2A2C;
+  border-color: #FFFFFF;
+  background: #FFFFFF;
+  background: -webkit-gradient(linear, left top, left bottom, from(#FFFFFF), to(#EAEAEA));
+}
+
+.control-button.previous {
+  left: 1622px;
+}
+
+.control-button.next {
+  left: 1842px;
+}
+
+.control-button.skip {
+  left: 1730px;
+}
+
+.control-button.change {
+  left: 90px;
+}
+
+.header {
+  background-color: #cfc7ca;
+  display: flex;
+  height: 130px;
+}
+
+.header .side {
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  flex: 1;
+}
+
+.header .center {
+  flex: 3;
+  padding: 4px 0;
+}
+
+.lcd {
+  display: flex;
+  background: black;
+  color: #008dbc;
+  font-family: "LED Dot Matrix";
+  font-size: 16px;
+  line-height: 18px;
+  margin: 0px;
+  border: inset 2px;
+}
+
+.lcd .title {
+  color: #be2a2c;
+  font-size: 16px;
+  line-height: 18px;
+}
+
+.now-playing {
+  flex: 5;
+  padding: 4px;
+}
+
+.credit-selection {
+  flex: 2;
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.credit-selection:not(.title){
+  font-size: 24px;
+}
+
+.now-playing .split {
+  display: flex;
+  justify-content: space-between;
+}
+
+.coming-up {
+  flex: 5;
+  padding: 4px;
+  text-align: center;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.footer {
+  display: flex;
+  justify-content: space-evenly;
+  margin-top: 20px;
+}
+
+.footer .control-button {
+  font-size: 24px;
+}

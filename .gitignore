@@ -87,4 +87,5 @@ typings/
 # DynamoDB Local files
 .dynamodb/
 
-build/
+client/build/assets/songs
+client/build/assets/main.js
