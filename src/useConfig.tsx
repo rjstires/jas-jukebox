@@ -29,11 +29,11 @@ const songEnded = actionCreator('song-ended');
 
 
 /** CONSTANTS */
-const songsPerTile = 2;
-const numColumns = 6;
-const numRows = 10;
+export const songsPerTile = 2;
+export const numColumns = 6;
+export const numRows = 10;
 
-interface Song {
+export interface Song {
   album: string;
   artist: string;
   title: string;

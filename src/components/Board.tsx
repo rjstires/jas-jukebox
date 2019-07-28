@@ -1,25 +1,24 @@
+import always from 'ramda/es/always';
+import pathOr from 'ramda/es/pathOr';
+import pipe from 'ramda/es/pipe';
+import splitEvery from 'ramda/es/splitEvery';
+import times from 'ramda/es/times';
 import React from 'react';
-import useConfig from '../useConfig';
-import defaultTo from 'ramda/es/defaultTo';
+import useConfig, { numColumns, numRows, songsPerTile } from '../useConfig';
+import { addAlphanumericToSongs } from '../utilities';
+
+const emptyRows = pipe(
+  always(times(() => ({}), songsPerTile * numColumns * numRows)),
+  addAlphanumericToSongs,
+  splitEvery(songsPerTile),
+  splitEvery(numColumns),
+)();
 
 const Board = () => {
   const [state] = useConfig();
-  const { loading, library, page, path } = state;
+  const { library, page } = state;
 
-  if (!path) {
-    return null;
-  }
-
-  if (loading) {
-    return null;
-  }
-
-  if (!library) {
-    return null;
-  }
-
-  const rows = defaultTo([], library[page]);
-
+  const rows: any = pathOr(emptyRows, [page], library);
 
   return (
     <div id="section:board" className="board">
