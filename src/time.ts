@@ -1,4 +1,4 @@
-import { compose } from "./utilities";
+import pipe from "ramda/es/pipe";
 
 export const addDuration = (total, { duration }) => total + duration;
 
@@ -30,4 +30,4 @@ export const secondsToTime: (number) => [number, number, number]
   };
 
 
-  export const durationToDispaly = compose(timeToString, secondsToTime);
+  export const secondsToDisplayTime = pipe(secondsToTime, timeToString);

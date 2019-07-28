@@ -1,0 +1,64 @@
+{
+  "name": "jas-jukebox",
+  "description": "Jukebox styled MP3 player.",
+  "author": "Robert Stires <rjstires@gmail.com>",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "electron-webpack dev",
+    "compile": "electron-webpack",
+    "dist": "yarn compile && electron-builder",
+    "dist:dir": "yarn dist --dir -c.compression=store -c.mac.identity=null"
+  },
+  "main": "main.js",
+  "license": "ISC",
+  "dependencies": {
+    "@types/electron-json-storage": "^4.0.0",
+    "@types/howler": "^2.1.1",
+    "@types/ramda": "^0.26.18",
+    "@types/react": "^16.8.23",
+    "@types/react-dom": "^16.8.5",
+    "electron-json-storage": "^4.1.6",
+    "fitty": "^2.2.6",
+    "glob": "^7.1.4",
+    "howler": "^2.1.2",
+    "music-metadata": "^4.2.1",
+    "ramda": "^0.26.1",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
+    "rxjs": "^6.5.2",
+    "source-map-support": "^0.5.12",
+    "typescript-fsa": "^3.0.0-beta-2"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.5.0",
+    "@babel/core": "^7.5.4",
+    "@babel/polyfill": "^7.4.4",
+    "@babel/preset-env": "^7.5.4",
+    "@babel/preset-react": "^7.0.0",
+    "@babel/preset-typescript": "^7.3.3",
+    "babel-loader": "^8.0.6",
+    "core-js": "2",
+    "electron": "5.0.6",
+    "electron-builder": "^21.0.11",
+    "electron-webpack": "^2.7.4",
+    "electron-webpack-ts": "^3.2.0",
+    "typescript": "^3.5.3",
+    "webpack": "~4.35.3",
+    "webpack-cli": "^3.3.5"
+  },
+  "electronWebpack": {
+    "title": "JAS Jukebox"
+  },
+  "build": {
+    "appId": "rjstires.jasJukebox",
+    "copyright": "Copyright © 2019 Robert Stires",
+    "mac": {
+      "category": "public.app-category.music"
+    },
+    "win": {
+      "target": "NSIS",
+      "icon": "build/icon.ico",
+      "legalTrademarks": "What?"
+    }
+  }
+}

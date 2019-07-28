@@ -18,7 +18,7 @@ body {
   height: 1080px;
   margin: 0;
   padding: 0;
-  overflow: hidden;
+  /* overflow: hidden; */
   background-repeat: no-repeat;
 }
 
@@ -69,11 +69,7 @@ body {
     box-shadow: 2px 2px 4px #7d7d7d6e;
 }
 
-.tile .title {
-  padding: 0 4px;
-  cursor: pointer;
-}
-
+.tile .title,
 .tile .artist {
   padding: 0 4px;
 }
@@ -98,22 +94,6 @@ body {
   border-color: #FFFFFF;
   background: #FFFFFF;
   background: -webkit-gradient(linear, left top, left bottom, from(#FFFFFF), to(#EAEAEA));
-}
-
-.control-button.previous {
-  left: 1622px;
-}
-
-.control-button.next {
-  left: 1842px;
-}
-
-.control-button.skip {
-  left: 1730px;
-}
-
-.control-button.change {
-  left: 90px;
 }
 
 .header {
