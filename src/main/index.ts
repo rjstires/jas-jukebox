@@ -9,8 +9,9 @@ const isDevelopment = process.env.NODE_ENV !== 'production'
 let mainWindow: null | BrowserWindow;
 
 function createMainWindow() {
-  const window = new BrowserWindow({
-    kiosk: true,
+    const window = new BrowserWindow({
+    kiosk: !isDevelopment,
+    frame: isDevelopment,
     webPreferences: {
       nodeIntegration: true,
       webSecurity: false,
