@@ -1,46 +1,11 @@
 import { remote } from 'electron';
-import path from 'ramda/es/path';
 import React from 'react';
-import { get } from '../storage';
 import useConfig from '../useConfig';
 import Display from './Display';
 
-async function updatePathFromLocalStorage(callback) {
-  const path = await get<string>('path');
-  callback(path);
-}
-
 const Header = () => {
-  const [state, handlers] = useConfig();
-  const { currentSong } = state;
+  const [, handlers] = useConfig();
   const { setPath, nextPage, previousPage, songEnded } = handlers;
-
-  React.useEffect(() => {
-    updatePathFromLocalStorage(setPath);
-  }, []);
-
-  const title = path(['currentSong', 'title'], state);
-
-  React.useEffect(
-    () => {
-      if (!currentSong) {
-        return;
-      }
-      const player = currentSong.player();
-
-      player.play();
-
-      player.on('end', () => {
-        songEnded();
-      });
-
-      return () => {
-        player.unload();
-      }
-
-    },
-    [title],
-  );
 
   const handleChangeClick = () => {
     remote.dialog.showOpenDialog({ properties: ['openDirectory'] }, (paths) => {

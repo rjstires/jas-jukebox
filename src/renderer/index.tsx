@@ -6,11 +6,13 @@ import Board from '../components/Board';
 import Footer from '../components/Footer';
 import Header from '../components/Header';
 import { ConfigProvider } from '../useConfig';
+import Player from '../components/Player';
 
 const Main = () => {
   return (
     <>
       <ConfigProvider>
+        <Player />
         <Header />
         <Board />
         <Footer />

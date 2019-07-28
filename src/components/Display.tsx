@@ -12,9 +12,7 @@ const OrSpace = ({ value }) => {
   if (value !== undefined) {
     return value;
   }
-  return (
-    <>&nbsp;</>
-  );
+  return <>&nbsp;</>;
 }
 
 const Display = () => {
