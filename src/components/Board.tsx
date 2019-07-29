@@ -5,7 +5,6 @@ import splitEvery from 'ramda/es/splitEvery';
 import times from 'ramda/es/times';
 import React from 'react';
 import styled from 'styled-components';
-
 import useConfig, { numColumns, numRows, songsPerTile } from '../useConfig';
 import { addAlphanumericToSongs } from '../utilities';
 import Tile from './Tile';

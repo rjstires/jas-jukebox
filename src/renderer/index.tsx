@@ -1,23 +1,15 @@
 /// <reference path="../common.d.ts" />
-
-import '../assets/styles.css';
-
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Board from '../components/Board';
-import Footer from '../components/Footer';
-import Header from '../components/Header';
+import '../assets/styles.css';
+import App from '../components/App';
 import { ConfigProvider } from '../useConfig';
-import Player from '../components/Player';
 
 const Main = () => {
   return (
     <>
       <ConfigProvider>
-        <Player />
-        <Header />
-        <Board />
-        <Footer />
+        <App />
       </ConfigProvider>
     </>
   )
