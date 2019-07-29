@@ -1,11 +1,15 @@
 import defaultTo from 'ramda/es/defaultTo';
+import map from 'ramda/es/map';
 import path from 'ramda/es/path';
 import pathOr from 'ramda/es/pathOr';
+import pipe from 'ramda/es/pipe';
+import take from 'ramda/es/take';
 import React from 'react';
 import styled from 'styled-components';
 import { secondsToDisplayTime } from '../time';
-import useConfig from '../useConfig';
+import useConfig, { Song } from '../useConfig';
 import Runtime from './Runtime';
+import always from 'ramda/es/always';
 
 const defaultToHyphen = defaultTo('-');
 
@@ -108,7 +112,13 @@ const Display = () => {
 
       <ComingUp>
         <Title>COMING UP</Title>
-        {queue.map((song) => <div key={song.title}>{song.title}</div>)}
+        {
+          pipe(
+            always(queue),
+            take(5),
+            map((song: Song) => <div key={song.title}>{song.title}</div>)
+          )()
+        }
       </ComingUp>
 
     </Root>
