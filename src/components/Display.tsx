@@ -1,12 +1,59 @@
-import React from 'react'
-import useConfig from '../useConfig';
-
-import Runtime from './Runtime'
 import defaultTo from 'ramda/es/defaultTo';
-import pathOr from 'ramda/es/pathOr';
-import { secondsToDisplayTime } from '../time';
 import path from 'ramda/es/path';
+import pathOr from 'ramda/es/pathOr';
+import React from 'react';
+import styled from 'styled-components';
+import { secondsToDisplayTime } from '../time';
+import useConfig from '../useConfig';
+import Runtime from './Runtime';
+
 const defaultToHyphen = defaultTo('-');
+
+const Root = styled.div`
+  display: flex;
+  background: black;
+  color: #008dbc;
+  font-family: "LED Dot Matrix";
+  font-size: 16px;
+  line-height: 18px;
+  margin: 0px;
+  border: inset 2px;
+`;
+
+const Title = styled.div`
+  color: #be2a2c;
+  font-size: 16px;
+  line-height: 18px;
+`;
+
+const CenteredTitle = styled(Title)`
+  text-align: center;
+`;
+
+const NowPlaying = styled.div`
+  flex: 5;
+  padding: 4px;
+`;
+
+const CreditSelection = styled.div`
+  flex: 2;
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+`;
+
+const Split = styled.div`
+  display: flex;
+  justify-content: space-between;
+`;
+
+const ComingUp = styled.div`
+  flex: 5;
+  padding: 4px;
+  text-align: center;
+`;
 
 const OrSpace = ({ value }) => {
   if (value !== undefined) {
@@ -26,46 +73,45 @@ const Display = () => {
   const selectionDisplay = defaultToHyphen(selection.alpha) + defaultToHyphen(selection.numeric);
 
   return (
-    <div className="lcd">
-
-      <div className="now-playing">
-        <div className="title text-center">NOW PLAYING</div>
+    <Root>
+      <NowPlaying>
+        <CenteredTitle>NOW PLAYING</CenteredTitle>
         <div><OrSpace value={title} /></div>
         <div><OrSpace value={artist} /></div>
         <div><OrSpace value={album} /></div>
-        <div className="split">
+        <Split>
           <div style={{ flex: 1 }}>Run Time:</div>
           <div style={{ flex: 0 }}>
             <Runtime />
           </div>
           &nbsp;/&nbsp;
           <span>{secondsToDisplayTime(duration)}</span>
-        </div>
-        <div className="split">
+        </Split>
+        <Split>
           <div>Coming Up: <span>{queue.length}</span></div>
-          <div>
+          <span>
             {
               secondsToDisplayTime(
                 queue.reduce((result, song) => result + song.duration, 0)
               )
             }
-          </div>
-        </div>
-      </div>
+          </span>
+        </Split>
+      </NowPlaying>
 
-      <div className="credit-selection">
-        <div className="title">CREDITS</div>
+      <CreditSelection>
+        <Title>CREDITS</Title>
         <div>01</div>
-        <div className="title">SELECTION</div>
+        <Title>SELECTION</Title>
         <div>{selectionDisplay}</div>
-      </div>
+      </CreditSelection>
 
-      <div className="coming-up">
-        <div className="title">COMING UP</div>
+      <ComingUp>
+        <Title>COMING UP</Title>
         {queue.map((song) => <div key={song.title}>{song.title}</div>)}
-      </div>
+      </ComingUp>
 
-    </div>
+    </Root>
   );
 };
 

@@ -2,6 +2,26 @@ import { remote } from 'electron';
 import React from 'react';
 import useConfig from '../useConfig';
 import Display from './Display';
+import ControlButton from './ControlButton';
+import styled from 'styled-components';
+
+const Root = styled.div`
+  background-color: #cfc7ca;
+  display: flex;
+  height: 130px;
+`;
+
+const Side = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  flex: 1;
+`;
+
+const Center = styled.div`
+  flex: 3;
+  padding: 4px 0;
+`;
 
 const Header = () => {
   const [, handlers] = useConfig();
@@ -29,19 +49,19 @@ const Header = () => {
   }
 
   return (
-    <div className="header">
-      <div className="side">
-        <button className="control-button" onClick={handleChangeClick}>CHANGE</button>
-      </div>
-      <div className="center">
+    <Root>
+      <Side>
+        <ControlButton className="control-button" onClick={handleChangeClick}>CHANGE</ControlButton>
+      </Side>
+      <Center>
         <Display />
-      </div>
-      <div className="side">
-        <button onClick={handlePreviousPageClick} className="control-button">&lt;</button>
-        <button onClick={handleSkipClick} className="control-button skip">SKIP</button>
-        <button onClick={handleNextPageClick} className="control-button">&gt;</button>
-      </div>
-    </div>
+      </Center>
+      <Side>
+        <ControlButton onClick={handlePreviousPageClick} className="control-button">&lt;</ControlButton>
+        <ControlButton onClick={handleSkipClick} className="control-button skip">SKIP</ControlButton>
+        <ControlButton onClick={handleNextPageClick} className="control-button">&gt;</ControlButton>
+      </Side>
+    </Root>
   );
 }
 

@@ -1,3 +1,5 @@
+/// <reference path="../common.d.ts" />
+
 import '../assets/styles.css';
 
 import React from 'react';
