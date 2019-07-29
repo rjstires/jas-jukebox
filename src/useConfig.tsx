@@ -20,9 +20,9 @@ const setSelectionAlpha = actionCreator<string>('change-selection-alpha');
 
 const setSelectionNumber = actionCreator<number>('change-selection-number');
 
-const enqueueSelection = actionCreator('enqueue-song');
+const enqueueSelection = actionCreator<undefined | string>('enqueue-song');
 
-const playSelection = actionCreator('play-song');
+const playSelection = actionCreator<undefined | string>('play-song');
 
 const songEnded = actionCreator('song-ended');
 
@@ -96,7 +96,7 @@ interface Handlers {
   /** Selection */
   setSelectionAlpha: (v: string) => void;
   setSelectionNumeric: (v: number) => void;
-  enqueueSelection: () => void;
+  enqueueSelection: (key?: string) => void;
 
   songEnded: () => void;
 }
@@ -124,7 +124,7 @@ function reducer(state: State, action: AnyAction): State {
     }
   }
 
-  if(isType(action, setPath)){
+  if (isType(action, setPath)) {
     return {
       ...state,
       path: action.payload,
@@ -180,12 +180,19 @@ function reducer(state: State, action: AnyAction): State {
 
   if (isType(action, enqueueSelection)) {
     const { library, page, selection: { alpha, numeric }, queue } = state;
+    const { payload } = action;
 
     if (!library) {
       return state;
     }
 
-    if (!alpha || !numeric) {
+    const key = payload
+      ? payload
+      : (alpha && numeric)
+        ? alpha + numeric
+        : undefined;
+
+    if (!key) {
       return {
         ...state,
         selection: { alpha: undefined, numeric: undefined }
@@ -193,8 +200,8 @@ function reducer(state: State, action: AnyAction): State {
     }
 
     const songs: any = flatten(flatten(flatten(library[page])));
-    const selection = alpha + numeric;
-    const found = songs.find(({ key }) => key === selection);
+
+    const found = songs.find((song) => song.key === key);
 
     if (!found.title) {
       return { ...state, selection: { alpha: undefined, numeric: undefined } };
@@ -209,12 +216,19 @@ function reducer(state: State, action: AnyAction): State {
 
   if (isType(action, playSelection)) {
     const { library, page, selection: { alpha, numeric } } = state;
+    const { payload } = action;
 
     if (!library) {
       return state;
     }
 
-    if (!alpha || !numeric) {
+    const key = payload
+      ? payload
+      : (alpha && numeric)
+        ? alpha + numeric
+        : undefined;
+
+    if (!key) {
       return {
         ...state,
         selection: { alpha: undefined, numeric: undefined }
@@ -222,8 +236,8 @@ function reducer(state: State, action: AnyAction): State {
     }
 
     const songs: any = flatten(flatten(flatten(library[page])));
-    const selection = alpha + numeric;
-    const found = songs.find(({ key }) => key === selection);
+
+    const found = songs.find((song) => song.key === key);
 
     if (!found.title) {
       return {
@@ -241,7 +255,6 @@ function reducer(state: State, action: AnyAction): State {
       selection: { alpha: undefined, numeric: undefined },
     }
   }
-
 
   if (isType(action, songEnded)) {
     const { queue } = state;
@@ -291,14 +304,14 @@ export function ConfigProvider({ children }) {
 
     setSelectionNumeric: number => dispatch(setSelectionNumber(number)),
 
-    enqueueSelection: () => {
+    enqueueSelection: (v?: string) => {
       const { currentSong } = state;
       if (!currentSong) {
-        dispatch(playSelection());
+        dispatch(playSelection(v));
         return;
       }
 
-      return dispatch(enqueueSelection());
+      return dispatch(enqueueSelection(v));
     },
 
     songEnded: () => dispatch(songEnded()),

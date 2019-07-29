@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import tileBackground from '../../assets/images/tile-background.png';
 import Fit from './Fit';
+import useConfig from '../../useConfig';
 
 const Container = styled.div`
   display: flex;
@@ -22,6 +23,10 @@ const Tile = styled.div`
 
 const TileRow = styled.div`
   padding: 0 4px;
+`;
+
+const TitleRow = styled(TileRow)`
+  cursor: pointer;
 `;
 
 const Selector = styled.div`
@@ -49,15 +54,22 @@ interface Props {
 }
 
 const TileContainer: React.FC<Props> = props => {
+  const [, dispatch] = useConfig()
+  const { enqueueSelection } = dispatch;
+
   const {
     artistName,
-
     firstKey,
     firstTitle,
-
     secondKey,
-    secondTitle
+    secondTitle,
   } = props;
+
+  const handleFirstTitleClick = () =>
+    enqueueSelection(firstKey);
+
+  const handleSecondTitleClick = () =>
+    enqueueSelection(secondKey);
 
   return (
     <Container>
@@ -66,21 +78,21 @@ const TileContainer: React.FC<Props> = props => {
         <div>{secondKey}</div>
       </Selector>
       <Tile>
-        <TileRow>
+        <TitleRow onClick={handleFirstTitleClick}>
           <div>
             <Fit>{firstTitle}</Fit>
           </div>
-        </TileRow>
+        </TitleRow>
         <TileRow>
           <div>
             <Fit>{artistName}</Fit>
           </div>
         </TileRow>
-        <TileRow>
+        <TitleRow onClick={handleSecondTitleClick}>
           <div>
             <Fit>{secondTitle}</Fit>
           </div>
-        </TileRow>
+        </TitleRow>
       </Tile>
     </Container>
   );
