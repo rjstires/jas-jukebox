@@ -16,7 +16,6 @@ const Fit: React.FC = ({ children }) => {
     }
 
     const fit = fitty(ref.current, { minSize: 6, maxSize: 16 });
-    console.log('ref.current', ref.current)
     return () => {
       fit.unsubscribe();
     }
