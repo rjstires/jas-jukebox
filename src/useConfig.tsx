@@ -207,9 +207,15 @@ function reducer(state: State, action: AnyAction): State {
       return { ...state, selection: { alpha: undefined, numeric: undefined } };
     }
 
+    const exists = queue.find(({ title }) => title === found.title);
+
+    if (found === state.currentSong || exists) {
+      return state;
+    }
+
     return {
       ...state,
-      queue: [...queue, found],
+      queue: [...queue, found].filter((v, i, arr) => arr.indexOf(v) === i),
       selection: { alpha: undefined, numeric: undefined },
     }
   }
