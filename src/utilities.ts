@@ -19,8 +19,8 @@ const toPages = pipe(
   splitEvery(10),
 );
 
-export const addAlphanumericToSongs = songs =>
-  songs.map((song, idx) => ({ ...song, key: alphanumericFromIndex(6, idx) }));
+export const addKeyToSong = songs =>
+  songs.map((song, idx) => ({ ...song, key: keyFromIndex(6, idx) }));
 
 export const normalizeLibrary = pipe(
   groupBy(({ artist }) => artist),
@@ -32,7 +32,7 @@ export const normalizeLibrary = pipe(
     return Math.ceil(library.length / songsPerPage) * songsPerPage;
   }, {}),
   splitEvery(120),
-  map(addAlphanumericToSongs),
+  map(addKeyToSong),
   flatten,
   toPages
 );
@@ -75,7 +75,7 @@ export function getRowAndColumn(numberColumns: number, index: number) {
   return [row, col];
 }
 
-export const alphanumericFromIndex = pipe(
+export const keyFromIndex = pipe(
   getRowAndColumn,
   ([row, col]) => `${ALPHABET[row]}${col}`
 );

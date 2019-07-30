@@ -6,7 +6,7 @@ import times from 'ramda/es/times';
 import React from 'react';
 import styled from 'styled-components';
 import useConfig, { numColumns, numRows, songsPerTile } from '../useConfig';
-import { addAlphanumericToSongs } from '../utilities';
+import { addKeyToSong } from '../utilities';
 import Tile from './Tile';
 
 const Root = styled.div`
@@ -27,7 +27,7 @@ const Row = styled.div`
 
 const emptyRows = pipe(
   always(times(() => ({}), songsPerTile * numColumns * numRows)),
-  addAlphanumericToSongs,
+  addKeyToSong,
   splitEvery(songsPerTile),
   splitEvery(numColumns),
 )();
