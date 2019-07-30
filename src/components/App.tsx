@@ -11,7 +11,7 @@ const App = () => {
 
   return (
     <>
-      <LoadingOverlay display={loading} />
+      <LoadingOverlay show={loading} />
       <Player />
       <Header />
       <Board />

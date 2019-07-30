@@ -79,16 +79,19 @@ const TileContainer: React.FC<Props> = props => {
       </Selector>
       <Tile>
         <TitleRow onClick={handleFirstTitleClick}>
+          {/* These seemling unnecessary DIVs provide contextual size to the Fit below. */}
           <div>
             <Fit>{firstTitle}</Fit>
           </div>
         </TitleRow>
         <TileRow>
+          {/* These seemling unnecessary DIVs provide contextual size to the Fit below. */}
           <div>
             <Fit>{artistName}</Fit>
           </div>
         </TileRow>
         <TitleRow onClick={handleSecondTitleClick}>
+          {/* These seemling unnecessary DIVs provide contextual size to the Fit below. */}
           <div>
             <Fit>{secondTitle}</Fit>
           </div>

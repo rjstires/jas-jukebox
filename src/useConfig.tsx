@@ -337,7 +337,7 @@ export function ConfigProvider({ children }) {
 function useState() {
   const context = React.useContext(StateContext);
   if (!context) {
-    throw new Error('You know what you did.');
+    throw new Error(`useState must be used within the StateProvider.`);
   }
   return context;
 }
@@ -345,7 +345,7 @@ function useState() {
 function useHandlers() {
   const context = React.useContext(HandlersContext);
   if (!context) {
-    throw new Error('You know what you did.');
+    throw new Error(`useHandlers must be used within the HandlersProvider.`);
   }
   return context;
 }

@@ -3,7 +3,7 @@ import React from 'react';
 import { get } from '../storage';
 import useConfig from '../useConfig';
 
-async function updatePathFromLocalStorage(callback) {
+async function setPathFromUserData(callback) {
   const path = await get<string>('path');
   callback(path);
 }
@@ -14,7 +14,7 @@ const Player = () => {
   const { setPath, songEnded } = handlers;
 
   React.useEffect(() => {
-    updatePathFromLocalStorage(setPath);
+    setPathFromUserData(setPath);
   }, []);
 
   const title = path(['currentSong', 'title'], state);
@@ -24,6 +24,7 @@ const Player = () => {
       if (!currentSong) {
         return;
       }
+
       const player = currentSong.player();
 
       player.play();
@@ -35,10 +36,10 @@ const Player = () => {
       return () => {
         player.unload();
       }
-
     },
     [title],
   );
+
   return null;
 }
 

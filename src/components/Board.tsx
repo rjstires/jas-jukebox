@@ -11,7 +11,10 @@ import Tile from './Tile';
 
 const Root = styled.div`
   background-color: #d2d1d2;
-  background: -webkit-linear-gradient(top, rgba(242,246,248,1) 0%,rgba(216,225,231,1) 34%,rgba(166,180,188,1) 73%,rgba(224,239,249,1) 100%);
+  background: -webkit-linear-gradient(top, rgba(242,246,248,1) 0%,
+    rgba(216,225,231,1) 34%,
+    rgba(166,180,188,1) 73%,
+    rgba(224,239,249,1) 100%);
   display: flex;
   flex-wrap: wrap;
   padding-bottom: 8px;
@@ -29,6 +32,26 @@ const emptyRows = pipe(
   splitEvery(numColumns),
 )();
 
+const createTile = pair => {
+  const { key: firstKey, title: firstTitle, artist } = pair[0];
+  const { key: secondKey, title: secondTitle } = pair[1];
+
+  return (
+    <Tile
+      key={`${firstKey}-${secondKey}`}
+      artistName={artist}
+      firstKey={firstKey}
+      firstTitle={firstTitle}
+      secondKey={secondKey}
+      secondTitle={secondTitle}
+    />
+  );
+};
+
+const createRow = (row, idx) => (
+  <Row key={idx}>{row.map(createTile)}</Row>
+);
+
 const Board = () => {
   const [state] = useConfig();
   const { library, page } = state;
@@ -37,22 +60,7 @@ const Board = () => {
 
   return (
     <Root>
-      {
-        rows.map((row, idx) => (
-          <Row key={idx}>
-            {row.map(([firstTitle, secondTitle], iidx) => (
-              <Tile
-                key={`${idx}-${iidx}`}
-                firstKey={firstTitle.key}
-                firstTitle={firstTitle.title}
-                secondKey={secondTitle.key}
-                secondTitle={secondTitle.title}
-                artistName={firstTitle.artist}
-              />
-            ))}
-          </Row>
-        ))
-      }
+      {rows.map(createRow)}
     </Root>
   );
 };
