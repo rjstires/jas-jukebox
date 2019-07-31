@@ -1,12 +1,8 @@
-import always from 'ramda/es/always';
 import pathOr from 'ramda/es/pathOr';
-import pipe from 'ramda/es/pipe';
-import splitEvery from 'ramda/es/splitEvery';
-import times from 'ramda/es/times';
 import React from 'react';
 import styled from 'styled-components';
-import useConfig, { numColumns, numRows, songsPerTile } from '../useConfig';
-import { addKeyToSong } from '../utilities';
+import useConfig from '../useConfig';
+import { emptyRows } from '../utilities';
 import Tile from './Tile';
 
 const Root = styled.div`
@@ -25,13 +21,6 @@ const Row = styled.div`
   margin-top: 8px;
 `;
 
-const emptyRows = pipe(
-  always(times(() => ({}), songsPerTile * numColumns * numRows)),
-  addKeyToSong,
-  splitEvery(songsPerTile),
-  splitEvery(numColumns),
-)();
-
 const createTile = pair => {
   const { key: firstKey, title: firstTitle, artist } = pair[0];
   const { key: secondKey, title: secondTitle } = pair[1];
@@ -48,9 +37,7 @@ const createTile = pair => {
   );
 };
 
-const createRow = (row, idx) => (
-  <Row key={idx}>{row.map(createTile)}</Row>
-);
+const createRow = (row, idx) => <Row key={idx}>{row.map(createTile)}</Row>;
 
 const Board = () => {
   const [state] = useConfig();
