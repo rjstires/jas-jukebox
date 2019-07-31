@@ -1,10 +1,10 @@
 import { flatten } from 'ramda';
 import React from 'react';
 import actionCreatorFactor, { AnyAction, isType } from 'typescript-fsa';
+import { rowsPerPage, songsPerPage, songsPerTile, tilesPerRow } from './constants';
 import parseLibraryFromPath from './parseLibraryFromPath';
 import { set } from './storage';
 import { carousel, normalizeLibrary } from './utilities';
-
 
 const actionCreator = actionCreatorFactor();
 
@@ -26,12 +26,7 @@ const playSelection = actionCreator<undefined | string>('play-song');
 
 const songEnded = actionCreator('song-ended');
 
-
-
 /** CONSTANTS */
-export const songsPerTile = 2;
-export const numColumns = 6;
-export const numRows = 10;
 
 export interface Song {
   album: string;
@@ -54,8 +49,9 @@ interface State {
   currentSong?: Song;
   queue: Song[];
   songsPerTile: number;
-  numColumns: number;
-  numRows: number;
+  songsPerPage: number;
+  tilesPerRow: number;
+  rowsPerPage: number;
   runtime: number;
   selection: {
     alpha?: string;
@@ -72,8 +68,9 @@ const initialState: State = {
   currentSong: undefined,
   queue: [],
   songsPerTile,
-  numColumns,
-  numRows,
+  songsPerPage,
+  tilesPerRow,
+  rowsPerPage,
   runtime: 0,
   selection: {
     alpha: undefined,
@@ -296,8 +293,9 @@ export function ConfigProvider({ children }) {
 
       try {
         const library = await parseLibraryFromPath(path);
-
+        console.time(`normalizeLibrary`)
         dispatch(setLibrary(normalizeLibrary(library)));
+        console.timeEnd(`normalizeLibrary`)
         dispatch(setLoading(false));
       } catch (error) { }
     },

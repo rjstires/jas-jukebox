@@ -1,4 +1,5 @@
-import { append, flatten, groupBy, map, pipe, repeat, splitEvery, toPairs } from 'ramda';
+import { always, append, chain, groupBy, last, pipe, prop, repeat, sortBy, splitEvery, times, toLower, toPairs } from 'ramda';
+import { rowsPerPage, songsPerPage, songsPerTile, tilesPerRow } from './constants';
 
 export const ALPHABET = [
   'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L',
@@ -6,30 +7,109 @@ export const ALPHABET = [
   'Y', 'Z',
 ];
 
-const toPages = pipe(
-  splitEvery(2),
-  splitEvery(6),
-  splitEvery(10),
+type Artist = string;
+
+type Song = {
+  artist: Artist
+};
+
+type Pair = [Artist, Song[]];
+
+/** A tile contains X songs. */
+export const toTile = splitEvery(songsPerTile);
+
+/** A row contains X tiles. */
+export const toRow = splitEvery(tilesPerRow);
+
+/** A page contains X rows */
+export const toPage = splitEvery(rowsPerPage);
+
+const mapRowAndColToKey = ([row, col]) => `${ALPHABET[row]}${col}`;
+
+export const getRowAndColumn = (numberColumns: number, index: number): [number, number] => {
+  const row = Math.floor(index / numberColumns);
+  const col = index % numberColumns + 1
+  return [row, col];
+}
+
+export const keyFromIndex = pipe(
+  getRowAndColumn,
+  mapRowAndColToKey,
 );
 
-export const addAlphanumericToSongs = songs =>
-  songs.map((song, idx) => ({ ...song, key: alphanumericFromIndex(6, idx) }));
+export const addKey = songs => songs.map((song, idx) => ({
+  ...song,
+  key: keyFromIndex(tilesPerRow, idx),
+}));
 
+/**
+ * Given a Pair, fill the Song[] with a null element if it's an odd length.
+ */
+const fillOddRows = ([artist, songs]) => {
+  return [
+    artist,
+    songs.length % 2 === 0 ? songs : append({ artist: artist }, songs),
+  ]
+};
+
+/**
+ * Currently there is no intent, or reasonable alternative, to sorting by artist so it's safe
+ * to hardcode this.
+ */
+const sortByArtist = sortBy(pipe(prop('artist'), toLower));
+
+/**
+ * @todo Im certain there's more efficient ways to achieve this.
+ */
 export const normalizeLibrary = pipe(
-  groupBy(({ artist }) => artist),
-  toPairs,
-  map(([_, value]: [string, object[]]) => value.length % 2 === 0 ? value : append(null, value)),
-  flatten,
-  fill(library => {
-    const songsPerPage = 2 * 6 * 10;
-    return Math.ceil(library.length / songsPerPage) * songsPerPage;
-  }, {}),
-  splitEvery(120),
-  map(addAlphanumericToSongs),
-  flatten,
-  toPages
+
+  /**
+   * In a jukebox if an artist has a odd number of tracks they will display a blank bottom tile before
+   * moving on to the next artist. To resolve that issue we group the songs by the artist and add a
+   * null element to any list of songs which has an odd length. Sorting is happening before the
+   * fill operation since the null elements wont have artist information.
+   */
+  pipe<Song[], Song[], Record<Artist, Song[]>, Pair[], Song[]>(
+    sortByArtist,
+    groupBy(({ artist }) => artist),
+    toPairs,
+    chain(pipe(fillOddRows, last)),
+  ),
+
+  /**
+   * A jukebox will always display tiles, even if there are fewer songs than the current page. So
+   * we fill in the array to the total page length with emtpy objects. This allows us to render
+   * empty tiles.
+   */
+  fill(library => Math.ceil(library.length / (2 * 6 * 10)) * (2 * 6 * 10), {}),
+
+  /** We need to add the selection key to eacy song. Keys are contextual to the page, so we split
+   * the songs into pages, apply the key values using chain (flatMap).
+  */
+  pipe(
+    splitEvery(songsPerPage),
+    chain(addKey),
+  ),
+
+  /** Group songs into tiles, into rows, into pages. */
+  pipe(toTile, toRow, toPage),
 );
 
+export const emptyRows = pipe(
+  always(times(() => ({}), songsPerPage)),
+  addKey,
+  toTile,
+  toRow,
+)();
+
+/**
+ * Allow step iteration, forward and backward, through a list.
+ *
+ * @param min {number} The lower bound of the list, usually 0.
+ * @param max {number} The upper bound, usually list length - 1.
+ * @param curr {number} The current position within the list.
+ * @param step {number} The number of steps to proceed. Can be a negative number to move backward.
+ */
 export function carousel(min: number, max: number, curr: number, step: number) {
   const next = curr + step;
 
@@ -46,9 +126,14 @@ export function carousel(min: number, max: number, curr: number, step: number) {
       : next;
 
   return Math.floor(curr);
-
 }
 
+/**
+ * Fill a list to a desired lenght with a value;
+ *
+ * @param length {Function} A function which returns the desired length of the array.
+ * @param value {any} The value to fill with.
+ */
 export function fill(length: (list: any[]) => number, value: any = null) {
   return function (list: any[]) {
     const diff = length(list) - list.length;
@@ -61,14 +146,3 @@ export function fill(length: (list: any[]) => number, value: any = null) {
     return list;
   }
 }
-
-export function getRowAndColumn(numberColumns: number, index: number) {
-  const row = Math.floor(index / numberColumns);
-  const col = index % numberColumns + 1
-  return [row, col];
-}
-
-export const alphanumericFromIndex = pipe(
-  getRowAndColumn,
-  ([row, col]) => `${ALPHABET[row]}${col}`
-);
