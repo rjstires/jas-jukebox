@@ -1,4 +1,4 @@
-import { always, defaultTo, map, path, pathOr, pipe, take } from 'ramda';
+import { defaultTo, map, path, pathOr, pipe, take } from 'ramda';
 import React from 'react';
 import styled from 'styled-components';
 import { secondsToDisplayTime } from '../time';
@@ -108,10 +108,9 @@ const Display = () => {
         <Title>COMING UP</Title>
         {
           pipe(
-            always(queue),
             take(5),
             map((song: Song) => <div key={song.title}>{song.title}</div>)
-          )()
+          )(queue)
         }
       </ComingUp>
 

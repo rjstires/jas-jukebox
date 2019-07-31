@@ -1,11 +1,11 @@
 @font-face {
   font-family: "LED Dot Matrix";
-  src: url("./LED Dot-Matrix.ttf");
+  src: url("fonts/LED Dot-Matrix.ttf");
 }
 
 @font-face {
   font-family: 'Steelfish';
-  src: url("./steelfis.ttf");
+  src: url("fonts/steelfis.ttf");
 }
 
 html {
