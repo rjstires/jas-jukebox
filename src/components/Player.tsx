@@ -1,4 +1,4 @@
-import path from 'ramda/es/path';
+import { path } from 'ramda';
 import React from 'react';
 import { get } from '../storage';
 import useConfig from '../useConfig';

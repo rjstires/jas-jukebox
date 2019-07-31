@@ -1,9 +1,9 @@
-import times from 'ramda/es/times';
+import { times } from 'ramda';
 import React from 'react';
+import styled from 'styled-components';
 import useConfig from '../useConfig';
 import { ALPHABET } from '../utilities';
 import ControlButton from './ControlButton';
-import styled from 'styled-components';
 
 const Root = styled.div`
   display: flex;
@@ -15,7 +15,7 @@ const SelectButton = styled(ControlButton)`
   font-size: 24px;
   `;
 
-  const AlphaNumericButton = styled(ControlButton)`
+const AlphaNumericButton = styled(ControlButton)`
   font-size: 24px;
   color: #BE2A2C;
   border-color: #FFFFFF;

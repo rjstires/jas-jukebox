@@ -1,8 +1,4 @@
-import always from 'ramda/es/always';
-import pathOr from 'ramda/es/pathOr';
-import pipe from 'ramda/es/pipe';
-import splitEvery from 'ramda/es/splitEvery';
-import times from 'ramda/es/times';
+import { always, pathOr, pipe, splitEvery, times } from 'ramda';
 import React from 'react';
 import styled from 'styled-components';
 import useConfig, { numColumns, numRows, songsPerTile } from '../useConfig';

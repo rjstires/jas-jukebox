@@ -1,10 +1,10 @@
+import { flatten } from 'ramda';
 import React from 'react';
-import { carousel, normalizeLibrary } from './utilities';
-import { set } from './storage';
+import actionCreatorFactor, { AnyAction, isType } from 'typescript-fsa';
 import parseLibraryFromPath from './parseLibraryFromPath';
-import flatten from 'ramda/es/flatten';
+import { set } from './storage';
+import { carousel, normalizeLibrary } from './utilities';
 
-import actionCreatorFactor, { isType, AnyAction } from 'typescript-fsa';
 
 const actionCreator = actionCreatorFactor();
 

@@ -1,15 +1,9 @@
-import defaultTo from 'ramda/es/defaultTo';
-import map from 'ramda/es/map';
-import path from 'ramda/es/path';
-import pathOr from 'ramda/es/pathOr';
-import pipe from 'ramda/es/pipe';
-import take from 'ramda/es/take';
+import { always, defaultTo, map, path, pathOr, pipe, take } from 'ramda';
 import React from 'react';
 import styled from 'styled-components';
 import { secondsToDisplayTime } from '../time';
 import useConfig, { Song } from '../useConfig';
 import Runtime from './Runtime';
-import always from 'ramda/es/always';
 
 const defaultToHyphen = defaultTo('-');
 

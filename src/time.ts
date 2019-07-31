@@ -1,4 +1,4 @@
-import pipe from "ramda/es/pipe";
+import { pipe } from "ramda";
 
 export const addDuration = (total, { duration }) => total + duration;
 
@@ -17,17 +17,17 @@ export const secondsToTime: (number) => [number, number, number]
     return [hr, min, sec]
   };
 
-  export const timeToString = (time: [number, number, number]) => {
-    const [hh, mm, ss] = time;
+export const timeToString = (time: [number, number, number]) => {
+  const [hh, mm, ss] = time;
 
-    const m = String(mm).padStart(2, '0');
-    const s = String(ss).padStart(2, '0');
-    const h = String(hh).padStart(2, '0');
+  const m = String(mm).padStart(2, '0');
+  const s = String(ss).padStart(2, '0');
+  const h = String(hh).padStart(2, '0');
 
-    return (hh > 0)
-      ? `${h}:${m}:${s}`
-      : `${m}:${s}`;
-  };
+  return (hh > 0)
+    ? `${h}:${m}:${s}`
+    : `${m}:${s}`;
+};
 
 
-  export const secondsToDisplayTime = pipe(secondsToTime, timeToString);
+export const secondsToDisplayTime = pipe(secondsToTime, timeToString);

@@ -1,11 +1,4 @@
-import append from 'ramda/es/append';
-import flatten from 'ramda/es/flatten';
-import groupBy from 'ramda/es/groupBy';
-import map from 'ramda/es/map';
-import pipe from 'ramda/es/pipe';
-import repeat from 'ramda/es/repeat';
-import splitEvery from 'ramda/es/splitEvery';
-import toPairs from 'ramda/es/toPairs';
+import { append, flatten, groupBy, map, pipe, repeat, splitEvery, toPairs } from 'ramda';
 
 export const ALPHABET = [
   'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L',
