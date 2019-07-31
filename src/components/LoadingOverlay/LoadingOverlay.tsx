@@ -1,9 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
-import loading from '../assets/images/record-loading.gif';
+import loading from '../../assets/images/record-loading.gif';
 
 const Common = styled.div`
-  display: ${({ show }) => show === true ? 'flex' : 'none'};
+  display: flex;
   position: absolute;
   height: 100%;
   width: 100%;
@@ -21,16 +21,20 @@ const Background = styled(Common)`
 `;
 
 interface Props {
-  show: boolean;
+  show?: boolean;
 }
 
 const LoadingOverlay: React.FC<Props> = ({ show }) => {
+  if (!show) {
+    return null;
+  }
+
   return (
     <>
-      <Spinner show={show}>
-        <img src={loading} />
+      <Spinner data-testid="loading-overlay-spinner">
+        <img src={loading} data-testid="loading-overlay-image" />
       </Spinner>
-      <Background show={show} />
+      <Background data-testid="loading-overlay-background" />
     </>
   );
 }
