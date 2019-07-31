@@ -1,4 +1,4 @@
-import { defaultTo, map, path, pathOr, pipe, take } from 'ramda';
+import { defaultTo, map, path, pathOr, pipe, reduce, take } from 'ramda';
 import React from 'react';
 import styled from 'styled-components';
 import { secondsToDisplayTime } from '../time';
@@ -61,6 +61,16 @@ const OrSpace = ({ value }) => {
   return <>&nbsp;</>;
 }
 
+const createComingUp = pipe<PlayableSong[], PlayableSong[], JSX.Element[]>(
+  take(5),
+  map(({ title }) => <div key={title}>{title}</div>),
+);
+
+const createQueueRuntime = pipe<PlayableSong[], Number, String>(
+  reduce((result, song) => result + song.duration, 0),
+  secondsToDisplayTime,
+);
+
 const Display = () => {
   const [{ selection, currentSong, queue }] = useConfig();
 
@@ -70,6 +80,10 @@ const Display = () => {
   const duration = pathOr(0, ['duration'], currentSong);
 
   const selectionDisplay = defaultToHyphen(selection.alpha) + defaultToHyphen(selection.numeric);
+
+  const comingUp = createComingUp(queue);
+
+  const queueRuntime = createQueueRuntime(queue);
 
   return (
     <Root>
@@ -88,13 +102,7 @@ const Display = () => {
         </Split>
         <Split>
           <div>Coming Up: <span>{queue.length}</span></div>
-          <span>
-            {
-              secondsToDisplayTime(
-                queue.reduce((result, song) => result + song.duration, 0)
-              )
-            }
-          </span>
+          <span>{queueRuntime}</span>
         </Split>
       </NowPlaying>
 
@@ -107,12 +115,7 @@ const Display = () => {
 
       <ComingUp>
         <Title>COMING UP</Title>
-        {
-          pipe(
-            take(5),
-            map((song: Song) => <div key={song.title}>{song.title}</div>)
-          )(queue)
-        }
+        {comingUp}
       </ComingUp>
 
     </Root>
