@@ -1,11 +1,5 @@
 import { append, chain, groupBy, last, pipe, prop, repeat, sortBy, splitEvery, times, toLower, toPairs } from 'ramda';
-import { rowsPerPage, songsPerPage, songsPerTile, tilesPerRow } from './constants';
-
-export const ALPHABET = [
-  'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L',
-  'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X',
-  'Y', 'Z',
-];
+import { rowsPerPage, songsPerPage, songsPerTile, tilesPerRow, ALPHABET } from './constants';
 
 type Artist = string;
 
