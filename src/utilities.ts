@@ -1,4 +1,4 @@
-import { always, append, chain, groupBy, last, pipe, prop, repeat, sortBy, splitEvery, times, toLower, toPairs } from 'ramda';
+import { append, chain, groupBy, last, pipe, prop, repeat, sortBy, splitEvery, times, toLower, toPairs } from 'ramda';
 import { rowsPerPage, songsPerPage, songsPerTile, tilesPerRow } from './constants';
 
 export const ALPHABET = [
@@ -16,15 +16,18 @@ type Song = {
 type Pair = [Artist, Song[]];
 
 /** A tile contains X songs. */
-export const toTile = splitEvery(songsPerTile);
+export const splitToTile = splitEvery(songsPerTile);
 
 /** A row contains X tiles. */
-export const toRow = splitEvery(tilesPerRow);
+export const splitToRow = splitEvery(tilesPerRow);
 
 /** A page contains X rows */
-export const toPage = splitEvery(rowsPerPage);
+export const splitToPage = splitEvery(rowsPerPage);
 
-const mapRowAndColToKey = ([row, col]) => `${ALPHABET[row]}${col}`;
+/** The app contains W pages of X rows of Y tiles of Z songs.  */
+export const toApp = pipe(splitToTile, splitToRow, splitToPage);
+
+export const mapRowAndColToKey = ([row, col]) => `${ALPHABET[row]}${col}`;
 
 export const getRowAndColumn = (numberColumns: number, index: number): [number, number] => {
   const row = Math.floor(index / numberColumns);
@@ -32,10 +35,7 @@ export const getRowAndColumn = (numberColumns: number, index: number): [number, 
   return [row, col];
 }
 
-export const keyFromIndex = pipe(
-  getRowAndColumn,
-  mapRowAndColToKey,
-);
+export const keyFromIndex = pipe(getRowAndColumn, mapRowAndColToKey);
 
 export const addKey = songs => songs.map((song, idx) => ({
   ...song,
@@ -45,7 +45,7 @@ export const addKey = songs => songs.map((song, idx) => ({
 /**
  * Given a Pair, fill the Song[] with a null element if it's an odd length.
  */
-const fillOddRows = ([artist, songs]) => {
+export const fillOddRows = ([artist, songs]) => {
   return [
     artist,
     songs.length % 2 === 0 ? songs : append({ artist: artist }, songs),
@@ -56,51 +56,33 @@ const fillOddRows = ([artist, songs]) => {
  * Currently there is no intent, or reasonable alternative, to sorting by artist so it's safe
  * to hardcode this.
  */
-const sortByArtist = sortBy(pipe(prop('artist'), toLower));
+export const sortByArtist = sortBy(pipe(prop('artist'), toLower));
 
 /**
- * @todo Im certain there's more efficient ways to achieve this.
+ * In a jukebox if an artist has a odd number of tracks they will display a blank bottom tile before
+ * moving on to the next artist. To resolve that issue we group the songs by the artist and add a
+ * null element to any list of songs which has an odd length. Sorting is happening before the
+ * fill operation since the null elements wont have artist information.
  */
-export const normalizeLibrary = pipe(
-
-  /**
-   * In a jukebox if an artist has a odd number of tracks they will display a blank bottom tile before
-   * moving on to the next artist. To resolve that issue we group the songs by the artist and add a
-   * null element to any list of songs which has an odd length. Sorting is happening before the
-   * fill operation since the null elements wont have artist information.
-   */
-  pipe<Song[], Song[], Record<Artist, Song[]>, Pair[], Song[]>(
-    sortByArtist,
-    groupBy(({ artist }) => artist),
-    toPairs,
-    chain(pipe(fillOddRows, last)),
-  ),
-
-  /**
-   * A jukebox will always display tiles, even if there are fewer songs than the current page. So
-   * we fill in the array to the total page length with emtpy objects. This allows us to render
-   * empty tiles.
-   */
-  fill(library => Math.ceil(library.length / (2 * 6 * 10)) * (2 * 6 * 10), {}),
-
-  /** We need to add the selection key to eacy song. Keys are contextual to the page, so we split
-   * the songs into pages, apply the key values using chain (flatMap).
-  */
-  pipe(
-    splitEvery(songsPerPage),
-    chain(addKey),
-  ),
-
-  /** Group songs into tiles, into rows, into pages. */
-  pipe(toTile, toRow, toPage),
+export const sortAndFillSongs = pipe<Song[], Song[], Record<Artist, Song[]>, Pair[], Song[]>(
+  sortByArtist,
+  groupBy(({ artist }) => artist),
+  toPairs,
+  chain(pipe(fillOddRows, last)),
 );
 
-export const emptyRows = pipe(
-  always(times(() => ({}), songsPerPage)),
-  addKey,
-  toTile,
-  toRow,
-)();
+/**
+ * A jukebox will always display tiles, even if there are fewer songs than the current page. So
+ * we fill in the array to the total page length with emtpy objects. This allows us to render
+ * empty tiles.
+ */
+const fillLastPage = fill(library => Math.ceil(library.length / (2 * 6 * 10)) * (2 * 6 * 10), {});
+
+/** We need to add the selection key to eacy song. Keys are contextual to the page, so we split
+ * the songs into pages, apply the key values using chain (flatMap).
+ */
+const addKeyByPage = pipe(splitEvery(songsPerPage), chain(addKey));
+
 
 /**
  * Allow step iteration, forward and backward, through a list.
@@ -146,3 +128,9 @@ export function fill(length: (list: any[]) => number, value: any = null) {
     return list;
   }
 }
+
+const mockSongs = times(() => ({}), songsPerPage);
+
+export const normalizeLibrary = pipe(sortAndFillSongs, fillLastPage, addKeyByPage, toApp);
+
+export const emptyRows = pipe(addKey, splitToTile, splitToRow)(mockSongs);
