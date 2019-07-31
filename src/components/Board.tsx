@@ -43,7 +43,7 @@ const Board = () => {
   const [state] = useConfig();
   const { library, page } = state;
 
-  const rows: any = pathOr(emptyRows, [page], library);
+  const rows = pathOr(emptyRows, [page], library);
 
   return (
     <Root>

@@ -1,17 +1,17 @@
 import { append, chain, groupBy, last, pipe, prop, repeat, sortBy, splitEvery, times, toLower, toPairs } from 'ramda';
-import { rowsPerPage, songsPerPage, songsPerTile, tilesPerRow, ALPHABET } from './constants';
-import { Artist, Song } from './types'
+import { ALPHABET, rowsPerPage, songsPerPage, songsPerTile, tilesPerRow } from './constants';
+import { Artist, Row, Song, SongWithKey, Tile } from './types';
 
 type Pair = [Artist, Song[]];
 
 /** A tile contains X songs. */
-export const splitToTile = splitEvery(songsPerTile);
+export const splitToTile: (s: any[]) => any[][] = splitEvery(songsPerTile);
 
 /** A row contains X tiles. */
-export const splitToRow = splitEvery(tilesPerRow);
+export const splitToRow: (s: any[]) => any[][] = splitEvery(tilesPerRow);
 
 /** A page contains X rows */
-export const splitToPage = splitEvery(rowsPerPage);
+export const splitToPage: (s: any[]) => any[] = splitEvery(rowsPerPage);
 
 /** The app contains W pages of X rows of Y tiles of Z songs.  */
 export const toApp = pipe(splitToTile, splitToRow, splitToPage);
@@ -65,13 +65,15 @@ export const sortAndFillSongs = pipe<Song[], Song[], Record<Artist, Song[]>, Pai
  * we fill in the array to the total page length with emtpy objects. This allows us to render
  * empty tiles.
  */
-const fillLastPage = fill(library => Math.ceil(library.length / (2 * 6 * 10)) * (2 * 6 * 10), {});
+const fillLastPage = fill<Song>(library => Math.ceil(library.length / (2 * 6 * 10)) * (2 * 6 * 10), { artist: '', title: '' });
 
 /** We need to add the selection key to eacy song. Keys are contextual to the page, so we split
  * the songs into pages, apply the key values using chain (flatMap).
  */
-const addKeyByPage = pipe(splitEvery(songsPerPage), chain(addKey));
-
+const addKeyByPage = pipe<Song[], Song[][], SongWithKey[]>(
+  splitEvery(songsPerPage),
+  chain(addKey),
+);
 
 /**
  * Allow step iteration, forward and backward, through a list.
@@ -105,8 +107,8 @@ export function carousel(min: number, max: number, curr: number, step: number) {
  * @param length {Function} A function which returns the desired length of the array.
  * @param value {any} The value to fill with.
  */
-export function fill(length: (list: any[]) => number, value: any = null) {
-  return function (list: any[]) {
+export function fill<T>(length: (list: T[]) => number, value: T) {
+  return function (list: T[]) {
     const diff = length(list) - list.length;
 
     if (diff > 0) {
@@ -118,8 +120,12 @@ export function fill(length: (list: any[]) => number, value: any = null) {
   }
 }
 
-const mockSongs = times(() => ({}), songsPerPage);
+const mockSongs: Song[] = times(() => ({ artist: '', title: '' }), songsPerPage);
 
 export const normalizeLibrary = pipe(sortAndFillSongs, fillLastPage, addKeyByPage, toApp);
 
-export const emptyRows = pipe(addKey, splitToTile, splitToRow)(mockSongs);
+export const emptyRows = pipe<Song[], SongWithKey[], Tile[], Row[]>(
+  addKey,
+  splitToTile,
+  splitToRow,
+)(mockSongs);
