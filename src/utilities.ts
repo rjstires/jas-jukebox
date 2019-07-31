@@ -1,11 +1,6 @@
 import { append, chain, groupBy, last, pipe, prop, repeat, sortBy, splitEvery, times, toLower, toPairs } from 'ramda';
 import { rowsPerPage, songsPerPage, songsPerTile, tilesPerRow, ALPHABET } from './constants';
-
-type Artist = string;
-
-type Song = {
-  artist: Artist
-};
+import { Artist, Song } from './types'
 
 type Pair = [Artist, Song[]];
 

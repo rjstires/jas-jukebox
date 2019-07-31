@@ -4,6 +4,7 @@ import actionCreatorFactor, { AnyAction, isType } from 'typescript-fsa';
 import { rowsPerPage, songsPerPage, songsPerTile, tilesPerRow } from './constants';
 import parseLibraryFromPath from './parseLibraryFromPath';
 import { set } from './storage';
+import { PlayableSong } from './types';
 import { carousel, normalizeLibrary } from './utilities';
 
 const actionCreator = actionCreatorFactor();
@@ -26,19 +27,6 @@ const playSelection = actionCreator<undefined | string>('play-song');
 
 const songEnded = actionCreator('song-ended');
 
-/** CONSTANTS */
-
-export interface Song {
-  album: string;
-  artist: string;
-  title: string;
-  year: number;
-  path: string;
-  duration: number;
-  key?: string;
-  player: () => Howl;
-}
-
 /** State */
 interface State {
   loading: boolean;
@@ -46,8 +34,8 @@ interface State {
   path?: string;
   library?: any[];
   page: number;
-  currentSong?: Song;
-  queue: Song[];
+  currentSong?: PlayableSong;
+  queue: PlayableSong[];
   songsPerTile: number;
   songsPerPage: number;
   tilesPerRow: number;

@@ -2,7 +2,8 @@ import { defaultTo, map, path, pathOr, pipe, take } from 'ramda';
 import React from 'react';
 import styled from 'styled-components';
 import { secondsToDisplayTime } from '../time';
-import useConfig, { Song } from '../useConfig';
+import { PlayableSong } from '../types';
+import useConfig from '../useConfig';
 import Runtime from './Runtime';
 
 const defaultToHyphen = defaultTo('-');
