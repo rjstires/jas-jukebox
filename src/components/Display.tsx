@@ -76,7 +76,6 @@ const Display = () => {
 
   const title = path(['title'], currentSong);
   const artist = path(['artist'], currentSong);
-  const album = path(['album'], currentSong);
   const duration = pathOr(0, ['duration'], currentSong);
 
   const selectionDisplay = defaultToHyphen(selection.alpha) + defaultToHyphen(selection.numeric);
@@ -91,7 +90,6 @@ const Display = () => {
         <CenteredTitle>NOW PLAYING</CenteredTitle>
         <div><OrSpace value={title} /></div>
         <div><OrSpace value={artist} /></div>
-        <div><OrSpace value={album} /></div>
         <Split>
           <div style={{ flex: 1 }}>Run Time:</div>
           <div style={{ flex: 0 }}>

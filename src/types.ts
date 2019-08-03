@@ -7,7 +7,7 @@ export type Song = {
 };
 
 export interface ExtendedSong extends Song {
-  album: string;
+  // album: string;
   artist: string;
   title: string;
   year: number;

@@ -8,14 +8,13 @@ async function parseLibraryFromPath(pathToLibrary: string) {
   const values: ExtendedSong[] = [];
   for (const songPath of songPaths) {
     const {
-      common: { artist, title, album, year },
+      common: { artist, title, year },
       format: { duration },
     } = await parseFile(songPath, { skipCovers: true });
 
-    if (duration && album && artist && title && year) {
+    if (duration && artist && title && year) {
       values.push({
         duration: duration,
-        album,
         artist,
         title,
         year,
