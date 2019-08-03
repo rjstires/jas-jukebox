@@ -13,14 +13,21 @@ const Root = styled.div`
 
 const SelectButton = styled(ControlButton)`
   font-size: 24px;
-  `;
+`;
 
 const AlphaNumericButton = styled(ControlButton)`
-  font-size: 24px;
-  color: #BE2A2C;
+  min-width: 60px;
+  font-size: 48px;
+  color: #650b0c;
   border-color: #FFFFFF;
-  background: #FFFFFF;
-  background: -webkit-gradient(linear, left top, left bottom, from(#FFFFFF), to(#EAEAEA));
+  padding: 8px 10px;
+  margin: 0;
+  background: #ffdcbd;
+  background-image: -webkit-linear-gradient(top, #ffdcbd, #f7b375);
+  background-image: -moz-linear-gradient(top, #ffdcbd, #f7b375);
+  background-image: -ms-linear-gradient(top, #ffdcbd, #f7b375);
+  background-image: -o-linear-gradient(top, #ffdcbd, #f7b375);
+  background-image: linear-gradient(to bottom, #ffdcbd, #f7b375);
 `;
 
 const Footer = () => {
