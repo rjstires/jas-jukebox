@@ -1,6 +1,5 @@
 import { Howl } from 'howler';
 import { flatten } from 'ramda';
-import pipe from 'ramda/es/pipe';
 import React from 'react';
 import actionCreatorFactor, { AnyAction, isType } from 'typescript-fsa';
 import { rowsPerPage, songsPerPage, songsPerTile, tilesPerRow } from './constants';

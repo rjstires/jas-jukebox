@@ -15,7 +15,7 @@ export interface ExtendedSong extends Song {
   duration: number;
 }
 
-export type SongWithKey = Song & { key: string };
+export type SongWithKey = ExtendedSong & { key: string };
 
 export type PlayableSong = SongWithKey;
 
