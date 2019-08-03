@@ -23,6 +23,7 @@ const Tile = styled.div`
 
 const TileRow = styled.div`
   padding: 0 4px;
+  font-weight: 600;
 `;
 
 const TitleRow = styled(TileRow)`
