@@ -1,3 +1,4 @@
+import { Howl } from 'howler';
 import { flatten } from 'ramda';
 import React from 'react';
 import actionCreatorFactor, { AnyAction, isType } from 'typescript-fsa';
@@ -9,23 +10,21 @@ import { carousel, normalizeLibrary } from './utilities';
 
 const actionCreator = actionCreatorFactor();
 
-const setPath = actionCreator<string>('set-path');
+const setPath = actionCreator<string>('SET-PATH');
 
-const setLibrary = actionCreator<any[]>('set-library');
+const setLibrary = actionCreator<any[]>('SET-LIBRARY');
 
-const setLoading = actionCreator<boolean>('set-loading');
+const setLoading = actionCreator<boolean>('SET-LOADING');
 
-const changePage = actionCreator<number>('change-page');
+const changePage = actionCreator<number>('CHANGE-PAGE');
 
-const setSelectionAlpha = actionCreator<string>('change-selection-alpha');
+const setSelectionAlpha = actionCreator<string>('CHANGE-SELECTION-ALPHA');
 
-const setSelectionNumber = actionCreator<number>('change-selection-number');
+const setSelectionNumber = actionCreator<number>('CHANGE-SELECTION-NUMERIC');
 
-const enqueueSelection = actionCreator<undefined | string>('enqueue-song');
+const enqueueSelection = actionCreator<undefined | string>('ENQUEUE-SONG');
 
-const playSelection = actionCreator<undefined | string>('play-song');
-
-const songEnded = actionCreator('song-ended');
+const nextSong = actionCreator<undefined>('NEXT-SONG');
 
 /** State */
 interface State {
@@ -34,7 +33,7 @@ interface State {
   path?: string;
   library?: any[];
   page: number;
-  currentSong?: PlayableSong;
+  currentSong?: PlayableSong & { howl: Howl };
   queue: PlayableSong[];
   songsPerTile: number;
   songsPerPage: number;
@@ -82,8 +81,7 @@ interface Handlers {
   setSelectionAlpha: (v: string) => void;
   setSelectionNumeric: (v: number) => void;
   enqueueSelection: (key?: string) => void;
-
-  songEnded: () => void;
+  nextSong: () => void;
 }
 
 const initialHandlers: Handlers = {
@@ -93,7 +91,7 @@ const initialHandlers: Handlers = {
   setSelectionAlpha: () => undefined,
   setSelectionNumeric: () => undefined,
   enqueueSelection: () => undefined,
-  songEnded: () => undefined,
+  nextSong: () => undefined,
 };
 
 const HandlersContext = React.createContext<Handlers>(initialHandlers);
@@ -164,60 +162,21 @@ function reducer(state: State, action: AnyAction): State {
   }
 
   if (isType(action, enqueueSelection)) {
-    const { library, page, selection: { alpha, numeric }, queue } = state;
+    const {
+      currentSong,
+      library,
+      page,
+      queue,
+      selection: { alpha, numeric },
+    } = state;
+
     const { payload } = action;
 
     if (!library) {
       return state;
     }
 
-    const key = payload
-      ? payload
-      : (alpha && numeric)
-        ? alpha + numeric
-        : undefined;
-
-    if (!key) {
-      return {
-        ...state,
-        selection: { alpha: undefined, numeric: undefined }
-      };
-    }
-
-    const songs: any = flatten(flatten(flatten(library[page])));
-
-    const found = songs.find((song) => song.key === key);
-
-    if (!found.title) {
-      return { ...state, selection: { alpha: undefined, numeric: undefined } };
-    }
-
-    const exists = queue.find(({ title }) => title === found.title);
-
-    if (found === state.currentSong || exists) {
-      return state;
-    }
-
-    return {
-      ...state,
-      queue: [...queue, found].filter((v, i, arr) => arr.indexOf(v) === i),
-      selection: { alpha: undefined, numeric: undefined },
-    }
-  }
-
-  if (isType(action, playSelection)) {
-    const { library, page, selection: { alpha, numeric } } = state;
-    const { payload } = action;
-
-    if (!library) {
-      return state;
-    }
-
-    const key = payload
-      ? payload
-      : (alpha && numeric)
-        ? alpha + numeric
-        : undefined;
+    const key = getKey(payload, alpha, numeric);
 
     if (!key) {
       return {
@@ -233,39 +192,83 @@ function reducer(state: State, action: AnyAction): State {
     if (!found.title) {
       return {
         ...state,
-        selection: {
-          alpha: undefined,
-          numeric: undefined,
-        },
+        selection: { alpha: undefined, numeric: undefined, },
       };
     }
 
-    return {
-      ...state,
-      currentSong: found,
-      selection: { alpha: undefined, numeric: undefined },
-    }
-  }
-
-  if (isType(action, songEnded)) {
-    const { queue } = state;
-    if (queue.length > 0) {
+    /** If there is no current song we'll make this the current song. */
+    if (!currentSong) {
       return {
         ...state,
-        currentSong: queue[0],
-        queue: queue.slice(1),
+        currentSong: createCurrentSong(found),
+        selection: { alpha: undefined, numeric: undefined },
       }
     }
 
+    /** If the song is already playing or in queue, we don't want it be queued again. */
+    const exists = queue.find(({ title }) => title === found.title);
+    if (found === currentSong || exists) {
+      return {
+        ...state,
+        selection: { alpha: undefined, numeric: undefined, },
+      };
+    }
+
+    /** Otherwise, put it in queue. */
     return {
       ...state,
-      currentSong: undefined
-    };
+      queue: [...queue, found],
+      selection: { alpha: undefined, numeric: undefined },
+    }
+  }
+
+  if (isType(action, nextSong)) {
+    const { queue } = state;
+    const next = queue[0];
+
+    /** There are no songs left in queue. */
+    if (!next) {
+      return {
+        ...state,
+        currentSong: undefined,
+        queue: [],
+      };
+    }
+
+    return {
+      ...state,
+      currentSong: createCurrentSong(next),
+      queue: queue.slice(1),
+    }
   }
 
   return state;
 }
 
+
+function createCurrentSong(found: any): (PlayableSong & { howl: Howl; }) | undefined {
+  return {
+    ...found,
+    howl: createHowl(found),
+  };
+}
+
+function createHowl(found: any): Howl {
+  return new Howl({
+    autoplay: false,
+    html5: true,
+    preload: true,
+    src: `file:///${found.path}`,
+  });
+}
+
+function getKey(payload: string | undefined, alpha: string | undefined, numeric: number | undefined) {
+  return payload
+    ? payload
+    : (alpha && numeric)
+      ? alpha + numeric
+      : undefined;
+}
 
 /** Provider */
 export function ConfigProvider({ children }) {
@@ -296,17 +299,9 @@ export function ConfigProvider({ children }) {
 
     setSelectionNumeric: number => dispatch(setSelectionNumber(number)),
 
-    enqueueSelection: (v?: string) => {
-      const { currentSong } = state;
-      if (!currentSong) {
-        dispatch(playSelection(v));
-        return;
-      }
+    enqueueSelection: (v?: string) => dispatch(enqueueSelection(v)),
 
-      return dispatch(enqueueSelection(v));
-    },
-
-    songEnded: () => dispatch(songEnded()),
+    nextSong: () => dispatch(nextSong()),
   };
 
   return (

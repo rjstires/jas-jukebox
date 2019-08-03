@@ -1,5 +1,4 @@
 import { sync as globSyng } from 'glob';
-import { Howl } from 'howler';
 import { parseFile } from 'music-metadata';
 
 async function parseLibraryFromPath(pathToLibrary: string) {
@@ -19,13 +18,6 @@ async function parseLibraryFromPath(pathToLibrary: string) {
       title,
       year,
       path: songPath,
-      player: () => new Howl({
-        autoplay: true,
-        html5: true,
-        preload: true,
-        src: `file:///${songPath}`,
-        // sprite: { intro: [0, 5000] },
-      }),
     });
   }
 

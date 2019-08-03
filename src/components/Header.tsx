@@ -24,8 +24,8 @@ const Center = styled.div`
 `;
 
 const Header = () => {
-  const [, handlers] = useConfig();
-  const { setPath, nextPage, previousPage, songEnded } = handlers;
+  const [state, handlers] = useConfig();
+  const { setPath, nextPage, previousPage } = handlers;
 
   const handleChangeClick = () => {
     remote.dialog.showOpenDialog({ properties: ['openDirectory'] }, (paths) => {
@@ -45,7 +45,10 @@ const Header = () => {
   };
 
   const handleSkipClick = () => {
-    songEnded();
+    const { currentSong } = state;
+    if (currentSong) {
+      currentSong.howl.stop();
+    }
   }
 
   return (

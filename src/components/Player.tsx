@@ -2,6 +2,7 @@ import { path } from 'ramda';
 import React from 'react';
 import { get } from '../storage';
 import useConfig from '../useConfig';
+import { useTimeout } from '../useInterval';
 
 async function setPathFromUserData(callback) {
   const path = await get<string>('path');
@@ -11,7 +12,7 @@ async function setPathFromUserData(callback) {
 const Player = () => {
   const [state, handlers] = useConfig();
   const { currentSong } = state;
-  const { setPath, songEnded } = handlers;
+  const { setPath, nextSong } = handlers;
 
   React.useEffect(() => {
     setPathFromUserData(setPath);
@@ -19,26 +20,34 @@ const Player = () => {
 
   const title = path(['currentSong', 'title'], state);
 
-  React.useEffect(
-    () => {
-      if (!currentSong) {
-        return;
-      }
+  useTimeout(() => {
+    if (!currentSong) {
+      return;
+    }
 
-      const player = currentSong.player();
+    const song = currentSong;
+    const player = song.howl;
 
-      player.play();
+    player.on('play', () => {
+      console.log(`Play: ${song.title}`)
+    })
 
-      player.on('end', () => {
-        songEnded();
-      });
+    player.on('end', () => {
+      console.log(`Ended: ${song.title}`)
+      nextSong();
+    });
 
-      return () => {
-        player.unload();
-      }
-    },
-    [title],
-  );
+    player.on('stop', () => {
+      console.log(`Stopped: ${song.title}`)
+      nextSong();
+    });
+
+    player.play();
+
+    return () => {
+      player.unload();
+    }
+  }, title ? 3000 : null, title);
 
   return null;
 }
