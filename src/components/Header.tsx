@@ -4,6 +4,7 @@ import useConfig from '../useConfig';
 import Display from './Display';
 import ControlButton from './ControlButton';
 import styled from 'styled-components';
+import { useInterval } from '../useInterval';
 
 const Root = styled.div`
   background-color: #cfc7ca;
@@ -50,6 +51,10 @@ const Header = () => {
       currentSong.howl.stop();
     }
   }
+
+  useInterval(() => {
+    nextPage();
+  }, 30000)
 
   return (
     <Root>
