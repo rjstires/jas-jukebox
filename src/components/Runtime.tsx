@@ -16,8 +16,17 @@ const Runtime = () => {
   }, [title]);
 
   useInterval((v) => {
-    setTime(time + 1)
-  }, currentSong ? 1000 : null);
+    if (!currentSong) {
+      return;
+    }
+
+    const seek = currentSong.howl.seek() || 0;
+
+    if (typeof seek === 'number') {
+      setTime(seek)
+    }
+
+  }, currentSong ? 100 : null);
 
   return (
     <>

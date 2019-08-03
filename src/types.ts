@@ -15,7 +15,6 @@ export interface PlayableSong extends SongWithKey {
   year: number;
   path: string;
   duration: number;
-  player: () => Howl;
 }
 
 export type Tile = PlayableSong[];
