@@ -41,9 +41,9 @@ const createRow = (row, idx) => <Row key={idx}>{row.map(createTile)}</Row>;
 
 const Board = () => {
   const [state] = useConfig();
-  const { library, page } = state;
+  const { pages, page } = state;
 
-  const rows = pathOr(emptyRows, [page], library);
+  const rows = pathOr(emptyRows, [page], pages);
 
   return (
     <Root>

@@ -1,6 +1,6 @@
 import { append, chain, groupBy, last, pipe, prop, repeat, sortBy, splitEvery, times, toLower, toPairs } from 'ramda';
 import { ALPHABET, rowsPerPage, songsPerPage, songsPerTile, tilesPerRow } from './constants';
-import { Artist, Row, Song, SongWithKey, Tile } from './types';
+import { Artist, Row, Song, SongWithKey, Tile, PlayableSong } from './types';
 
 type Pair = [Artist, Song[]];
 
@@ -122,7 +122,9 @@ export function fill<T>(length: (list: T[]) => number, value: T) {
 
 const mockSongs: Song[] = times(() => ({ artist: '', title: '' }), songsPerPage);
 
-export const normalizeLibrary = pipe(sortAndFillSongs, fillLastPage, addKeyByPage, toApp);
+export const mapLibraryToPages = pipe<
+Song[], Song[], Song[], SongWithKey[], PlayableSong[][][]
+>(sortAndFillSongs, fillLastPage, addKeyByPage, toApp);
 
 export const emptyRows = pipe<Song[], SongWithKey[], Tile[], Row[]>(
   addKey,

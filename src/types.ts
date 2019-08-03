@@ -6,9 +6,7 @@ export type Song = {
   title: Artist;
 };
 
-export type SongWithKey = Song & { key: string };
-
-export interface PlayableSong extends SongWithKey {
+export interface ExtendedSong extends Song {
   album: string;
   artist: string;
   title: string;
@@ -16,6 +14,10 @@ export interface PlayableSong extends SongWithKey {
   path: string;
   duration: number;
 }
+
+export type SongWithKey = Song & { key: string };
+
+export type PlayableSong = SongWithKey;
 
 export type Tile = PlayableSong[];
 

@@ -46,7 +46,7 @@ const Header = () => {
 
   const handleSkipClick = () => {
     const { currentSong } = state;
-    if (currentSong) {
+    if (currentSong && currentSong.howl.playing()) {
       currentSong.howl.stop();
     }
   }

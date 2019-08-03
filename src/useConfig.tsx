@@ -1,16 +1,19 @@
 import { Howl } from 'howler';
 import { flatten } from 'ramda';
+import pipe from 'ramda/es/pipe';
 import React from 'react';
 import actionCreatorFactor, { AnyAction, isType } from 'typescript-fsa';
 import { rowsPerPage, songsPerPage, songsPerTile, tilesPerRow } from './constants';
 import parseLibraryFromPath from './parseLibraryFromPath';
 import { set } from './storage';
-import { PlayableSong } from './types';
-import { carousel, normalizeLibrary } from './utilities';
+import { ExtendedSong, PlayableSong, SongWithKey } from './types';
+import { carousel, emptyRows, mapLibraryToPages } from './utilities';
 
 const actionCreator = actionCreatorFactor();
 
 const setPath = actionCreator<string>('SET-PATH');
+
+const setPages = actionCreator<any[]>('SET-PAGES');
 
 const setLibrary = actionCreator<any[]>('SET-LIBRARY');
 
@@ -31,7 +34,8 @@ interface State {
   loading: boolean;
   error?: Error;
   path?: string;
-  library?: any[];
+  library?: ExtendedSong[];
+  pages?: SongWithKey[][][][];
   page: number;
   currentSong?: PlayableSong & { howl: Howl };
   queue: PlayableSong[];
@@ -50,7 +54,8 @@ const initialState: State = {
   loading: false,
   error: undefined,
   path: undefined,
-  library: undefined,
+  library: [],
+  pages: [emptyRows],
   page: 0,
   currentSong: undefined,
   queue: [],
@@ -122,15 +127,22 @@ function reducer(state: State, action: AnyAction): State {
     }
   }
 
+  if (isType(action, setPages)) {
+    return {
+      ...state,
+      pages: action.payload,
+    }
+  }
+
   if (isType(action, changePage)) {
-    const { library, page } = state;
-    if (!library) {
+    const { pages, page } = state;
+    if (!pages) {
       return state;
     }
 
     const nextPage = carousel(
       0,
-      library.length - 1,
+      pages.length - 1,
       page,
       action.payload,
     );
@@ -164,7 +176,7 @@ function reducer(state: State, action: AnyAction): State {
   if (isType(action, enqueueSelection)) {
     const {
       currentSong,
-      library,
+      pages,
       page,
       queue,
       selection: { alpha, numeric },
@@ -172,7 +184,7 @@ function reducer(state: State, action: AnyAction): State {
 
     const { payload } = action;
 
-    if (!library) {
+    if (!pages) {
       return state;
     }
 
@@ -185,7 +197,7 @@ function reducer(state: State, action: AnyAction): State {
       };
     }
 
-    const songs: any = flatten(flatten(flatten(library[page])));
+    const songs: any = flatten(flatten(flatten(pages[page])));
 
     const found = songs.find((song) => song.key === key);
 
@@ -223,8 +235,8 @@ function reducer(state: State, action: AnyAction): State {
   }
 
   if (isType(action, nextSong)) {
-    const { queue } = state;
-    const next = queue[0];
+    const { library, queue } = state;
+    const next = queue[0] || findRandom(library);
 
     /** There are no songs left in queue. */
     if (!next) {
@@ -245,6 +257,13 @@ function reducer(state: State, action: AnyAction): State {
   return state;
 }
 
+function findRandom(library?: ExtendedSong[]) {
+  if (!library) {
+    return;
+  }
+
+  return library[Math.floor(Math.random()* library.length)];
+}
 
 function createCurrentSong(found: any): (PlayableSong & { howl: Howl; }) | undefined {
   return {
@@ -285,7 +304,8 @@ export function ConfigProvider({ children }) {
       try {
         const library = await parseLibraryFromPath(path);
         console.time(`normalizeLibrary`)
-        dispatch(setLibrary(normalizeLibrary(library)));
+        dispatch(setPages(mapLibraryToPages(library)));
+        dispatch(setLibrary(library));
         console.timeEnd(`normalizeLibrary`)
         dispatch(setLoading(false));
       } catch (error) { }
