@@ -12,9 +12,11 @@ const actionCreator = actionCreatorFactor();
 
 const setPath = actionCreator<string>('SET-PATH');
 
-const setPages = actionCreator<any[]>('SET-PAGES');
+/** @todo Correct type*/
+const setPages = actionCreator<(library: ExtendedSong[]) => ExtendedSong[]>('SET-PAGES');
 
-const setLibrary = actionCreator<any[]>('SET-LIBRARY');
+/** @todo Correct type */
+const setLibrary = actionCreator<ExtendedSong[]>('SET-LIBRARY');
 
 const setLoading = actionCreator<boolean>('SET-LOADING');
 
@@ -86,6 +88,8 @@ interface Handlers {
   setSelectionNumeric: (v: number) => void;
   enqueueSelection: (key?: string) => void;
   nextSong: () => void;
+
+  setPages: (fn: (library: ExtendedSong[]) => ExtendedSong[]) => void;
 }
 
 const initialHandlers: Handlers = {
@@ -96,6 +100,7 @@ const initialHandlers: Handlers = {
   setSelectionNumeric: () => undefined,
   enqueueSelection: () => undefined,
   nextSong: () => undefined,
+  setPages: () => undefined,
 };
 
 const HandlersContext = React.createContext<Handlers>(initialHandlers);
@@ -116,7 +121,6 @@ function reducer(state: State, action: AnyAction): State {
       ...state,
       path: action.payload,
     }
-
   }
 
   if (isType(action, setLibrary)) {
@@ -127,10 +131,17 @@ function reducer(state: State, action: AnyAction): State {
   }
 
   if (isType(action, setPages)) {
-    return {
-      ...state,
-      pages: action.payload,
+    const { library } = state;
+    if(!library){
+      return state;
     }
+
+    const filtered = action.payload(library);
+    const pages = mapLibraryToPages(filtered)
+
+    console.log('pages', pages);
+
+    return { ...state, pages }
   }
 
   if (isType(action, changePage)) {
@@ -303,7 +314,6 @@ export function ConfigProvider({ children }) {
       try {
         const library = await parseLibraryFromPath(path);
         console.time(`normalizeLibrary`)
-        dispatch(setPages(mapLibraryToPages(library)));
         dispatch(setLibrary(library));
         console.timeEnd(`normalizeLibrary`)
         dispatch(setLoading(false));
@@ -320,7 +330,9 @@ export function ConfigProvider({ children }) {
 
     enqueueSelection: (v?: string) => dispatch(enqueueSelection(v)),
 
-    nextSong: () => dispatch(nextSong()),
+    nextSong: () => dispatch(nextSong(undefined)),
+
+    setPages: (fn) => dispatch(setPages(fn)),
   };
 
   return (

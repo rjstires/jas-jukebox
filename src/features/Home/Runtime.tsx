@@ -1,7 +1,7 @@
 import React from 'react'
-import { useInterval } from '../useInterval'
-import useConfig from '../useConfig';
-import { secondsToDisplayTime } from '../time';
+import { useInterval } from '../../useInterval'
+import useConfig from '../../useConfig';
+import { secondsToDisplayTime } from '../../time';
 
 const Runtime = () => {
   const [state] = useConfig();

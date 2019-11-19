@@ -1,23 +1,30 @@
-import React from 'react';
-import Board from './Board';
-import Footer from './Footer';
-import Header from './Header';
-import Player from './Player';
-import LoadingOverlay from './LoadingOverlay';
-import useConfig from '../useConfig';
+import {
+  createHistory,
+  createMemorySource,
+  LocationProvider,
+  Router
+} from "@reach/router";
+import React from "react";
+import Home from "../features/Home";
+import Options from "../features/Options";
+
+let source = createMemorySource("");
+
+let history = createHistory(source);
 
 const App = () => {
-  const [ { loading }] = useConfig();
-
   return (
     <>
-      <LoadingOverlay show={loading} />
-      <Player />
-      <Header />
-      <Board />
-      <Footer />
+      <LocationProvider history={history}>
+        {() => (
+          <Router>
+            <Options default />
+            <Home path="play" />
+          </Router>
+        )}
+      </LocationProvider>
     </>
   );
-}
+};
 
 export default App;
