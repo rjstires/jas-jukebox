@@ -1,10 +1,9 @@
-import { remote } from 'electron';
 import React from 'react';
-import useConfig from '../useConfig';
+import useConfig from '../../useConfig';
 import Display from './Display';
 import ControlButton from './ControlButton';
 import styled from 'styled-components';
-import { useInterval } from '../useInterval';
+import { useInterval } from '../../useInterval';
 
 const Root = styled.div`
   background-color: #cfc7ca;
@@ -24,18 +23,9 @@ const Center = styled.div`
   padding: 4px 0;
 `;
 
-const Header = () => {
+const Header = ({ onNavigate }) => {
   const [state, handlers] = useConfig();
-  const { setPath, nextPage, previousPage } = handlers;
-
-  const handleChangeClick = () => {
-    remote.dialog.showOpenDialog({ properties: ['openDirectory'] }, (paths) => {
-      if (!paths) {
-        return;
-      }
-      setPath(paths[0]);
-    })
-  };
+  const { nextPage, previousPage } = handlers;
 
   const handlePreviousPageClick = () => {
     previousPage();
@@ -59,7 +49,7 @@ const Header = () => {
   return (
     <Root>
       <Side>
-        <ControlButton className="control-button" onClick={handleChangeClick}>CHANGE</ControlButton>
+        <ControlButton className="control-button" onClick={onNavigate}>CHANGE</ControlButton>
       </Side>
       <Center>
         <Display />

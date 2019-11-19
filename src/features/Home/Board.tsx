@@ -1,8 +1,8 @@
 import { pathOr } from 'ramda';
 import React from 'react';
 import styled from 'styled-components';
-import useConfig from '../useConfig';
-import { emptyRows } from '../utilities';
+import useConfig from '../../useConfig';
+import { emptyRows } from '../../utilities';
 import Tile from './Tile';
 
 const Root = styled.div`

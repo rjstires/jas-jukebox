@@ -123,7 +123,7 @@ export function fill<T>(length: (list: T[]) => number, value: T) {
 const mockSongs: Song[] = times(() => ({ artist: '', title: '' }), songsPerPage);
 
 export const mapLibraryToPages = pipe<
-Song[], Song[], Song[], SongWithKey[], PlayableSong[][][]
+Song[], Song[], Song[], SongWithKey[], PlayableSong[][][][]
 >(sortAndFillSongs, fillLastPage, addKeyByPage, toApp);
 
 export const emptyRows = pipe<Song[], SongWithKey[], Tile[], Row[]>(

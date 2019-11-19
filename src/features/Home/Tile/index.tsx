@@ -1,8 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
-import tileBackground from '../../assets/images/tile-background.png';
+import tileBackground from '../../../assets/images/tile-background.png';
 import Fit from './Fit';
-import useConfig from '../../useConfig';
+import useConfig from '../../../useConfig';
 
 const Container = styled.div`
   display: flex;

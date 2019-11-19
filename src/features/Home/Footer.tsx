@@ -1,8 +1,8 @@
 import { times } from 'ramda';
 import React from 'react';
 import styled from 'styled-components';
-import useConfig from '../useConfig';
-import { ALPHABET } from '../constants';
+import useConfig from '../../useConfig';
+import { ALPHABET } from '../../constants';
 import ControlButton from './ControlButton';
 
 const Root = styled.div`
