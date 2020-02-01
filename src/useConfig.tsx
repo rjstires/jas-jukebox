@@ -6,7 +6,7 @@ import { rowsPerPage, songsPerPage, songsPerTile, tilesPerRow } from './constant
 import parseLibraryFromPath from './parseLibraryFromPath';
 import { set } from './storage';
 import { ExtendedSong, PlayableSong, SongWithKey } from './types';
-import { carousel, emptyRows, mapLibraryToPages } from './utilities';
+import { carousel, emptyRows, mapLibraryToPages, songsMatch } from './utilities';
 
 const actionCreator = actionCreatorFactor();
 
@@ -132,7 +132,7 @@ function reducer(state: State, action: AnyAction): State {
 
   if (isType(action, setPages)) {
     const { library } = state;
-    if(!library){
+    if (!library) {
       return state;
     }
 
@@ -227,9 +227,11 @@ function reducer(state: State, action: AnyAction): State {
       }
     }
 
-    /** If the song is already playing or in queue, we don't want it be queued again. */
-    const exists = queue.find(({ title }) => title === found.title);
-    if (found === currentSong || exists) {
+
+    /** Prevent same song from being queued back-to-back (Howler breaks for some reason.)  */
+    const playlist = [currentSong, ...queue];
+    const lastInList = playlist[Math.max(playlist.length - 1, 0)];
+    if (songsMatch(lastInList, found)) {
       return {
         ...state,
         selection: { alpha: undefined, numeric: undefined, },
@@ -272,7 +274,7 @@ function findRandom(library?: ExtendedSong[]) {
     return;
   }
 
-  return library[Math.floor(Math.random()* library.length)];
+  return library[Math.floor(Math.random() * library.length)];
 }
 
 function createCurrentSong(found: any): (PlayableSong & { howl: Howl; }) | undefined {

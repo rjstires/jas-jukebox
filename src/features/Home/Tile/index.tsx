@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import tileBackground from '../../../assets/images/tile-background.png';
 import Fit from './Fit';
 import useConfig from '../../../useConfig';
+import { debounce } from '../../../utilities';
 
 const Container = styled.div`
   display: flex;
@@ -66,11 +67,9 @@ const TileContainer: React.FC<Props> = props => {
     secondTitle,
   } = props;
 
-  const handleFirstTitleClick = () =>
-    enqueueSelection(firstKey);
+  const handleFirstTitleClick = debounce(() => enqueueSelection(firstKey), 250);
 
-  const handleSecondTitleClick = () =>
-    enqueueSelection(secondKey);
+  const handleSecondTitleClick = debounce(() => enqueueSelection(secondKey), 250);
 
   return (
     <Container>
