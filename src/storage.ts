@@ -1,9 +1,12 @@
 import storage from 'electron-json-storage';
+import { ExtendedSong } from './types';
 
 const configName = 'config';
 
 interface ConfigStorage {
   path: string;
+  cache: string;
+  library: ExtendedSong[];
 }
 
 type Keys = keyof ConfigStorage
@@ -17,7 +20,7 @@ export function get<T>(key: Keys) {
   })
 }
 
-export async function set<T>(key: Keys, value: any) {
+export async function set<T>(key: Keys, value: ConfigStorage[typeof key]) {
   return new Promise<T>(async (resolve, reject) => {
 
     storage.get(configName, (getError, config) => {
@@ -25,7 +28,7 @@ export async function set<T>(key: Keys, value: any) {
         return reject(getError)
       }
 
-      const updatedConfig: ConfigStorage = { ...config, [key]: value };
+      const updatedConfig: ConfigStorage = { ...(config as ConfigStorage), [key]: value };
 
       storage.set(
         configName,
