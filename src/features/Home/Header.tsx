@@ -3,7 +3,6 @@ import useConfig from '../../useConfig';
 import Display from './Display';
 import ControlButton from './ControlButton';
 import styled from 'styled-components';
-import { useInterval } from '../../useInterval';
 
 const Root = styled.div`
   background-color: #cfc7ca;
@@ -25,26 +24,26 @@ const Center = styled.div`
 
 const Header = ({ onNavigate }) => {
   const [state, handlers] = useConfig();
-  const { nextPage, previousPage } = handlers;
+
+  const { nextPage, previousPage, resetIdleTimer } = handlers;
 
   const handlePreviousPageClick = () => {
+    resetIdleTimer();
     previousPage();
   };
 
   const handleNextPageClick = () => {
+    resetIdleTimer();
     nextPage();
   };
 
   const handleSkipClick = () => {
     const { currentSong } = state;
+    resetIdleTimer();
     if (currentSong && currentSong.howl.playing()) {
       currentSong.howl.stop();
     }
   }
-
-  useInterval(() => {
-    nextPage();
-  }, 30000)
 
   return (
     <Root>

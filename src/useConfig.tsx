@@ -6,6 +6,7 @@ import { rowsPerPage, songsPerPage, songsPerTile, tilesPerRow } from './constant
 import parseLibraryFromPath from './parseLibraryFromPath';
 import { set } from './storage';
 import { ExtendedSong, PlayableSong, SongWithKey } from './types';
+import { useResetInterval } from './useInterval';
 import { carousel, emptyRows, mapLibraryToPages, songsMatch } from './utilities';
 
 const actionCreator = actionCreatorFactor();
@@ -90,6 +91,8 @@ interface Handlers {
   nextSong: () => void;
 
   setPages: (fn: (library: ExtendedSong[]) => ExtendedSong[]) => void;
+
+  resetIdleTimer: () => void;
 }
 
 const initialHandlers: Handlers = {
@@ -101,6 +104,8 @@ const initialHandlers: Handlers = {
   enqueueSelection: () => undefined,
   nextSong: () => undefined,
   setPages: () => undefined,
+
+  resetIdleTimer: () => undefined,
 };
 
 const HandlersContext = React.createContext<Handlers>(initialHandlers);
@@ -138,8 +143,6 @@ function reducer(state: State, action: AnyAction): State {
 
     const filtered = action.payload(library);
     const pages = mapLibraryToPages(filtered)
-
-    console.log('pages', pages);
 
     return { ...state, pages }
   }
@@ -305,6 +308,12 @@ function getKey(payload: string | undefined, alpha: string | undefined, numeric:
 export function ConfigProvider({ children }) {
   const [state, dispatch] = React.useReducer(reducer, initialState);
 
+  const [ resetIdleTimer ] = useResetInterval(() => {
+    if(state.pages && state.pages.length > 1){
+      dispatch(changePage(1))
+    }
+  }, 30000);
+
   const handlers: Handlers = {
     setPath: async path => {
       dispatch(setPath(path));
@@ -322,6 +331,7 @@ export function ConfigProvider({ children }) {
         console.timeEnd(`normalizeLibrary`)
         dispatch(normalizedLibrary);
         dispatch(setLoading(false));
+        resetIdleTimer();
       } catch (error) { }
     },
 
@@ -338,6 +348,8 @@ export function ConfigProvider({ children }) {
     nextSong: () => dispatch(nextSong(undefined)),
 
     setPages: (fn) => dispatch(setPages(fn)),
+
+    resetIdleTimer,
   };
 
   return (
