@@ -57,7 +57,7 @@ interface Props {
 
 const TileContainer: React.FC<Props> = props => {
   const [, dispatch] = useConfig()
-  const { enqueueSelection } = dispatch;
+  const { enqueueSelection, resetIdleTimer } = dispatch;
 
   const {
     artistName,
@@ -67,9 +67,15 @@ const TileContainer: React.FC<Props> = props => {
     secondTitle,
   } = props;
 
-  const handleFirstTitleClick = debounce(() => enqueueSelection(firstKey), 250);
+  const handleFirstTitleClick = debounce(() => {
+    resetIdleTimer();
+    enqueueSelection(firstKey);
+  }, 250);
 
-  const handleSecondTitleClick = debounce(() => enqueueSelection(secondKey), 250);
+  const handleSecondTitleClick = debounce(() => {
+    resetIdleTimer();
+    enqueueSelection(secondKey);
+  }, 250);
 
   return (
     <Container>

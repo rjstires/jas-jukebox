@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 
 export function useInterval(callback, delay) {
   const savedCallback = useRef<any>();
@@ -48,4 +48,34 @@ export function useTimeout(callback, delay, ...props) {
     }
     return;
   }, [delay, ...props]);
+}
+
+export function useResetInterval<T extends (...args: any[]) => any>(callback: T, delay: number): [() => void] {
+  const callbackRef = useRef(callback);
+  callbackRef.current = callback;
+
+  const intervalHandler = useRef<null | NodeJS.Timeout>(null);
+
+  function initializeTimeout() {
+    intervalHandler.current = setInterval(() => callbackRef.current(), delay);
+    return () => {
+      if (intervalHandler.current) {
+        clearTimeout(intervalHandler.current)
+      };
+    }
+  }
+
+  useEffect(initializeTimeout, [delay])
+
+  function resetInterval() {
+    if (intervalHandler.current) {
+      clearTimeout(intervalHandler.current);
+    }
+
+    intervalHandler.current = setInterval(() => callbackRef.current(), delay);
+  }
+
+  const resetCallback = useCallback(resetInterval, []);
+
+  return [resetCallback];
 }
