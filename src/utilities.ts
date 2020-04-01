@@ -45,7 +45,7 @@ export const fillOddRows = ([artist, songs]) => {
  * Currently there is no intent, or reasonable alternative, to sorting by artist so it's safe
  * to hardcode this.
  */
-export const sortByArtist = sortBy(pipe(prop('artist'), toLower));
+export const sortByArtist = sortBy(pipe(prop('sortableArtist'), toLower));
 
 /**
  * In a jukebox if an artist has a odd number of tracks they will display a blank bottom tile before
