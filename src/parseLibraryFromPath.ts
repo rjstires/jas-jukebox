@@ -3,6 +3,10 @@ import { parseFile } from "music-metadata";
 import { ExtendedSong } from "./types";
 import { get, set } from "./storage";
 
+function createSortableArtist(artist: string): string {
+  return artist.replace(/^the /i, "");
+}
+
 function stringifySongPaths(paths: string[]): string {
   console.time(`stringifySongPaths`);
   const result = paths.join(" ");
@@ -55,7 +59,8 @@ async function buildExtendedSongsFromPath(
         artist,
         title,
         year,
-        path
+        path,
+        sortableArtist: createSortableArtist(artist),
       });
     }
   }

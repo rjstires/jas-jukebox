@@ -7,12 +7,12 @@ export type Song = {
 };
 
 export interface ExtendedSong extends Song {
-  // album: string;
   artist: string;
   title: string;
   year: number;
   path: string;
   duration: number;
+  sortableArtist: string;
 }
 
 export type SongWithKey = ExtendedSong & { key: string };
