@@ -146,7 +146,7 @@ const Options: React.FC<RouteComponentProps> = props => {
   );
 
   return loading && pastTimeout ? (
-    <LoadingOverlay show={loading} timeout={200} />
+    <LoadingOverlay show={loading} />
   ) : (
     <div style={{ display: "inline-flex" }}>
       <div>
