@@ -310,14 +310,17 @@ export function ConfigProvider({ children }) {
       dispatch(setPath(path));
       dispatch(setLoading(true));
 
-      /** Sets path in localStorage (sorta) */
       set('path', path)
 
       try {
+        console.time(`parseLibraryFromPath`)
         const library = await parseLibraryFromPath(path);
+        console.timeEnd(`parseLibraryFromPath`)
+
         console.time(`normalizeLibrary`)
-        dispatch(setLibrary(library));
+        const normalizedLibrary = setLibrary(library);
         console.timeEnd(`normalizeLibrary`)
+        dispatch(normalizedLibrary);
         dispatch(setLoading(false));
       } catch (error) { }
     },
