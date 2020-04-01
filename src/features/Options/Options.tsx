@@ -1,7 +1,7 @@
 import { RouteComponentProps } from "@reach/router";
 import { remote } from "electron";
 import { compose, groupBy, map, toPairs } from "ramda";
-import React from "react";
+import React, { useState } from "react";
 import LoadingOverlay from "../../components/LoadingOverlay";
 import { get } from "../../storage";
 import useConfig from "../../useConfig";
@@ -9,6 +9,7 @@ import { ExtendedSong } from "../../types";
 import AudioImage from "../../assets/images/sound-png-35800.png";
 import SettingsImage from "../../assets/images/settings-icon-14972.png";
 import styled from "styled-components";
+import { useTimeout } from "../../useInterval";
 
 const filterInYearRange = (start: string, end: string) => ({ year }) =>
   year >= Number(start) && year <= Number(end);
@@ -136,8 +137,16 @@ const Options: React.FC<RouteComponentProps> = props => {
     setPages(library => library);
   });
 
-  return loading ? (
-    <LoadingOverlay show={loading} />
+  const [pastTimeout, setPastTimeout] = useState(false);
+  useTimeout(
+    () => {
+      setPastTimeout(true);
+    },
+    300
+  );
+
+  return loading && pastTimeout ? (
+    <LoadingOverlay show={loading} timeout={200} />
   ) : (
     <div style={{ display: "inline-flex" }}>
       <div>
