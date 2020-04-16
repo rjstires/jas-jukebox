@@ -1,6 +1,6 @@
 import { RouteComponentProps } from "@reach/router";
 import { remote } from "electron";
-import { compose, groupBy, map, toPairs } from "ramda";
+import { compose, groupBy, map, toPairs, reduce } from "ramda";
 import React, { useState } from "react";
 import LoadingOverlay from "../../components/LoadingOverlay";
 import { get } from "../../storage";
@@ -10,6 +10,17 @@ import AudioImage from "../../assets/images/sound-png-35800.png";
 import SettingsImage from "../../assets/images/settings-icon-14972.png";
 import styled from "styled-components";
 import { useTimeout } from "../../useInterval";
+
+function isBetween(year: number, min: number, max: number) {
+  return year >= min && year <= max;
+}
+
+function addIfBetween(song: ExtendedSong, yearMin: number, yearMax: number, acc: Record<string, ExtendedSong[]>) {
+  if (isBetween(song.year, yearMin, yearMax)) {
+    const range = [yearMin, yearMax];
+    acc[range.toString()].push(song);
+  }
+}
 
 const filterInYearRange = (start: string, end: string) => ({ year }) =>
   year >= Number(start) && year <= Number(end);
@@ -133,6 +144,22 @@ const Options: React.FC<RouteComponentProps> = props => {
     })
   )(library);
 
+  const CustomRangeButtons = compose<
+    ExtendedSong[],
+    Record<string, ExtendedSong[]>,
+    JSX.Element[]
+  >(
+    mapYearSpanDictToButtons,
+    reduce((
+      result, current) => {
+        addIfBetween(current, 1960, 1975, result);
+        addIfBetween(current, 1965, 1975, result);
+        return result;
+      },
+      {} as Record<string, ExtendedSong[]>
+    ),
+  )(library);
+
   const loadAll = loadAndNavigate(() => {
     setPages(library => library);
   });
@@ -159,6 +186,7 @@ const Options: React.FC<RouteComponentProps> = props => {
       </div>
       <div>{DecadeButtons}</div>
       <div>{HalfDecadeButtons}</div>
+      <div>{CustomRangeButtons}</div>
     </div>
   );
 };
