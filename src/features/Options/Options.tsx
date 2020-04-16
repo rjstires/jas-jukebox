@@ -18,7 +18,10 @@ function isBetween(year: number, min: number, max: number) {
 function addIfBetween(song: ExtendedSong, yearMin: number, yearMax: number, acc: Record<string, ExtendedSong[]>) {
   if (isBetween(song.year, yearMin, yearMax)) {
     const range = [yearMin, yearMax];
-    acc[range.toString()].push(song);
+    if(acc[range.toString()]){
+      acc[range.toString()].push(song);
+    }
+    acc[range.toString()] = [song];
   }
 }
 
