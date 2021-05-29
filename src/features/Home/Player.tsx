@@ -8,7 +8,7 @@ const Player = () => {
   const { currentSong } = state;
   const { nextSong } = handlers;
 
-  const title = path(['currentSong', 'title'], state);
+  const playId = path(['currentSong', 'playId'], state);
 
   useTimeout(() => {
     if (!currentSong) {
@@ -37,7 +37,7 @@ const Player = () => {
     return () => {
       player.unload();
     }
-  }, title ? 3000 : null, title);
+  }, playId ? 3000 : null, playId);
 
   return null;
 }

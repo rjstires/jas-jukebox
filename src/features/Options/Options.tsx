@@ -1,15 +1,16 @@
 import { RouteComponentProps } from "@reach/router";
 import { remote } from "electron";
-import { compose, groupBy, map, toPairs, reduce } from "ramda";
+import { compose, groupBy, map, reduce, toPairs } from "ramda";
 import React, { useState } from "react";
+import styled from "styled-components";
+import SettingsImage from "../../assets/images/settings-icon-14972.png";
+import AudioImage from "../../assets/images/sound-png-35800.png";
 import LoadingOverlay from "../../components/LoadingOverlay";
 import { get } from "../../storage";
-import useConfig from "../../useConfig";
 import { ExtendedSong } from "../../types";
-import AudioImage from "../../assets/images/sound-png-35800.png";
-import SettingsImage from "../../assets/images/settings-icon-14972.png";
-import styled from "styled-components";
+import useConfig from "../../useConfig";
 import { useTimeout } from "../../useInterval";
+
 
 function isBetween(year: number, min: number, max: number) {
   return year >= min && year <= max;
@@ -18,7 +19,7 @@ function isBetween(year: number, min: number, max: number) {
 function addIfBetween(song: ExtendedSong, yearMin: number, yearMax: number, acc: Record<string, ExtendedSong[]>) {
   if (isBetween(song.year, yearMin, yearMax)) {
     const range = [yearMin, yearMax];
-    if(acc[range.toString()]){
+    if (acc[range.toString()]) {
       acc[range.toString()].push(song);
     }
     acc[range.toString()] = [song];
@@ -155,10 +156,10 @@ const Options: React.FC<RouteComponentProps> = props => {
     mapYearSpanDictToButtons,
     reduce((
       result, current) => {
-        addIfBetween(current, 1960, 1975, result);
-        addIfBetween(current, 1965, 1975, result);
-        return result;
-      },
+      addIfBetween(current, 1960, 1975, result);
+      addIfBetween(current, 1965, 1975, result);
+      return result;
+    },
       {} as Record<string, ExtendedSong[]>
     ),
   )(library);

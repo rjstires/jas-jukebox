@@ -37,7 +37,7 @@ export const addKey = songs => songs.map((song, idx) => ({
 export const fillOddRows = ([artist, songs]) => {
   return [
     artist,
-    songs.length % 2 === 0 ? songs : append({ artist: artist }, songs),
+    songs.length % songsPerTile === 0 ? songs : append({ artist: artist }, songs),
   ]
 };
 
@@ -65,7 +65,7 @@ export const sortAndFillSongs = pipe<Song[], Song[], Record<Artist, Song[]>, Pai
  * we fill in the array to the total page length with emtpy objects. This allows us to render
  * empty tiles.
  */
-const fillLastPage = fill<Song>(library => Math.ceil(library.length / (2 * 6 * 10)) * (2 * 6 * 10), { artist: '', title: '' });
+const fillLastPage = fill<Song>(library => Math.ceil(library.length / (songsPerTile * tilesPerRow * rowsPerPage)) * (songsPerTile * tilesPerRow * rowsPerPage), { artist: '', title: '' });
 
 /** We need to add the selection key to eacy song. Keys are contextual to the page, so we split
  * the songs into pages, apply the key values using chain (flatMap).
@@ -123,7 +123,7 @@ export function fill<T>(length: (list: T[]) => number, value: T) {
 const mockSongs: Song[] = times(() => ({ artist: '', title: '' }), songsPerPage);
 
 export const mapLibraryToPages = pipe<
-Song[], Song[], Song[], SongWithKey[], PlayableSong[][][][]
+  Song[], Song[], Song[], SongWithKey[], PlayableSong[][][][]
 >(sortAndFillSongs, fillLastPage, addKeyByPage, toApp);
 
 export const emptyRows = pipe<Song[], SongWithKey[], Tile[], Row[]>(
@@ -133,23 +133,16 @@ export const emptyRows = pipe<Song[], SongWithKey[], Tile[], Row[]>(
 )(mockSongs);
 
 export function debounce(func: Function, wait: number, immediate?: boolean) {
-	var timeout;
-	return function(this: any) {
-		var context = this, args = arguments;
-		var later = function() {
-			timeout = null;
-			if (!immediate) func.apply(context, args);
-		};
-		var callNow = immediate && !timeout;
-		clearTimeout(timeout);
-		timeout = setTimeout(later, wait);
-		if (callNow) func.apply(context, args);
-	};
+  var timeout;
+  return function (this: any) {
+    var context = this, args = arguments;
+    var later = function () {
+      timeout = null;
+      if (!immediate) func.apply(context, args);
+    };
+    var callNow = immediate && !timeout;
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+    if (callNow) func.apply(context, args);
+  };
 };
-
-export function songsMatch(a, b) {
-  if (!a || !b) {
-    return false;
-  }
-  return a.title === b.title;
-}

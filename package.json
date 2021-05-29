@@ -1,73 +1,77 @@
 {
-  "name": "jas-jukebox",
-  "description": "Jukebox styled MP3 player.",
-  "author": "Robert Stires <rjstires@gmail.com>",
-  "version": "1.4.2",
-  "scripts": {
-    "dev": "electron-webpack dev",
-    "compile": "electron-webpack",
-    "dist": "yarn compile && electron-builder",
-    "dist:dir": "yarn dist --dir -c.compression=store -c.mac.identity=null",
-    "test": "jest --env=jsdom"
-  },
-  "main": "main.js",
-  "license": "ISC",
-  "dependencies": {
-    "@reach/router": "^1.2.1",
-    "electron-json-storage": "^4.1.6",
-    "fitty": "^2.2.6",
-    "glob": "^7.1.4",
-    "howler": "^2.1.2",
-    "music-metadata": "^4.2.1",
-    "ramda": "^0.26.1",
-    "react": "^16.8.6",
-    "react-dom": "^16.8.6",
-    "source-map-support": "^0.5.12",
-    "styled-components": "^4.3.2",
-    "typescript-fsa": "^3.0.0-beta-2"
-  },
-  "devDependencies": {
-    "@babel/cli": "^7.5.0",
-    "@babel/core": "^7.5.4",
-    "@babel/polyfill": "^7.4.4",
-    "@babel/preset-env": "^7.5.4",
-    "@babel/preset-react": "^7.0.0",
-    "@babel/preset-typescript": "^7.3.3",
-    "@testing-library/jest-dom": "^4.0.0",
-    "@testing-library/react": "^8.0.7",
-    "@types/electron-json-storage": "^4.0.0",
-    "@types/howler": "^2.1.1",
-    "@types/jest": "^24.0.16",
-    "@types/ramda": "^0.26.18",
-    "@types/reach__router": "^1.2.6",
-    "@types/react": "^16.8.23",
-    "@types/react-dom": "^16.8.5",
-    "babel-loader": "^8.0.6",
-    "babel-plugin-styled-components": "^1.10.6",
-    "core-js": "2",
-    "electron": "5.0.6",
-    "electron-builder": "^21.0.11",
-    "electron-webpack": "^2.7.4",
-    "electron-webpack-ts": "^3.2.0",
-    "jest": "^24.8.0",
-    "ts-jest": "^24.0.2",
-    "typescript": "3.5.3",
-    "webpack": "~4.35.3",
-    "webpack-cli": "^3.3.5"
-  },
-  "electronWebpack": {
-    "title": "JAS Jukebox"
-  },
-  "build": {
-    "appId": "rjstires.jasJukebox",
-    "copyright": "Copyright © 2019 Robert Stires",
-    "mac": {
-      "category": "public.app-category.music"
+    "name": "jas-jukebox",
+    "description": "Jukebox styled MP3 player.",
+    "author": "Robert Stires <rjstires@gmail.com>",
+    "version": "1.4.3",
+    "scripts": {
+        "dev": "electron-webpack dev",
+        "compile": "electron-webpack",
+        "dist": "yarn compile && electron-builder",
+        "dist:dir": "yarn dist --dir -c.compression=store -c.mac.identity=null",
+        "test": "jest --env=jsdom"
     },
-    "win": {
-      "target": "NSIS",
-      "icon": "build/icon.ico",
-      "legalTrademarks": "What?"
+    "main": "main.js",
+    "license": "ISC",
+    "dependencies": {
+        "@material-ui/core": "^4.11.4",
+        "@material-ui/icons": "^4.11.2",
+        "@reach/router": "^1.3.4",
+        "electron-json-storage": "^4.1.6",
+        "fitty": "^2.2.6",
+        "glob": "^7.1.4",
+        "howler": "^2.1.2",
+        "json-stringify-safe": "^5.0.1",
+        "music-metadata": "^4.2.1",
+        "ramda": "^0.26.1",
+        "react": "^17.0.2",
+        "react-dom": "^17.0.2",
+        "source-map-support": "^0.5.12",
+        "styled-components": "^4.3.2",
+        "typescript-fsa": "^3.0.0-beta-2",
+        "uuid": "^8.3.2"
+    },
+    "devDependencies": {
+        "@babel/cli": "^7.5.0",
+        "@babel/core": "^7.5.4",
+        "@babel/polyfill": "^7.4.4",
+        "@babel/preset-env": "^7.5.4",
+        "@babel/preset-react": "^7.0.0",
+        "@babel/preset-typescript": "^7.3.3",
+        "@testing-library/jest-dom": "^4.0.0",
+        "@testing-library/react": "^8.0.7",
+        "@types/electron-json-storage": "^4.0.0",
+        "@types/howler": "^2.1.1",
+        "@types/jest": "^24.0.16",
+        "@types/ramda": "^0.26.18",
+        "@types/reach__router": "^1.3.7",
+        "@types/react": "^17.0.8",
+        "@types/react-dom": "^17.0.5",
+        "babel-loader": "^8.0.6",
+        "babel-plugin-styled-components": "^1.10.6",
+        "core-js": "2",
+        "electron": "5.0.6",
+        "electron-builder": "^21.0.11",
+        "electron-webpack": "^2.7.4",
+        "electron-webpack-ts": "^3.2.0",
+        "jest": "^24.8.0",
+        "ts-jest": "^24.0.2",
+        "typescript": "3.5.3",
+        "webpack": "~4.35.3",
+        "webpack-cli": "^3.3.5"
+    },
+    "electronWebpack": {
+        "title": "JAS Jukebox"
+    },
+    "build": {
+        "appId": "rjstires.jasJukebox",
+        "copyright": "Copyright © 2019 Robert Stires",
+        "mac": {
+            "category": "public.app-category.music"
+        },
+        "win": {
+            "target": "NSIS",
+            "icon": "build/icon.ico",
+            "legalTrademarks": "What?"
+        }
     }
-  }
 }

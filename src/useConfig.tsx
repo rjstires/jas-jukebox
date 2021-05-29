@@ -1,13 +1,14 @@
 import { Howl } from 'howler';
 import { flatten } from 'ramda';
-import React from 'react';
+import React, { useEffect } from 'react';
 import actionCreatorFactor, { AnyAction, isType } from 'typescript-fsa';
 import { rowsPerPage, songsPerPage, songsPerTile, tilesPerRow } from './constants';
 import parseLibraryFromPath from './parseLibraryFromPath';
 import { set } from './storage';
 import { ExtendedSong, PlayableSong, SongWithKey } from './types';
 import { useResetInterval } from './useInterval';
-import { carousel, emptyRows, mapLibraryToPages, songsMatch } from './utilities';
+import { carousel, emptyRows, mapLibraryToPages } from './utilities';
+import { v4 as uuidv4 } from 'uuid';
 
 const actionCreator = actionCreatorFactor();
 
@@ -31,8 +32,11 @@ const enqueueSelection = actionCreator<undefined | string>('ENQUEUE-SONG');
 
 const nextSong = actionCreator<undefined>('NEXT-SONG');
 
+const setVolume = actionCreator<number>('SET-VOLUME');
+
 /** State */
 interface State {
+  volume: number;
   loading: boolean;
   error?: Error;
   path?: string;
@@ -53,6 +57,7 @@ interface State {
 }
 
 const initialState: State = {
+  volume: 0.5,
   loading: false,
   error: undefined,
   path: undefined,
@@ -77,6 +82,9 @@ const StateContext = React.createContext<State>(initialState)
 
 /** Handlers */
 interface Handlers {
+  /** Volume */
+  setVolume: (volume: number) => void;
+
   /** Config */
   setPath: (path: string) => void;
 
@@ -96,6 +104,7 @@ interface Handlers {
 }
 
 const initialHandlers: Handlers = {
+  setVolume: () => undefined,
   setPath: () => undefined,
   nextPage: () => undefined,
   previousPage: () => undefined,
@@ -112,6 +121,15 @@ const HandlersContext = React.createContext<Handlers>(initialHandlers);
 
 /** Reducer */
 function reducer(state: State, action: AnyAction): State {
+  if (isType(action, setVolume)) {
+    const { payload } = action;
+
+    return {
+      ...state,
+      volume: payload
+    }
+  }
+
   if (isType(action, setLoading)) {
     const { payload } = action;
 
@@ -132,6 +150,7 @@ function reducer(state: State, action: AnyAction): State {
     return {
       ...state,
       library: action.payload,
+      loading: false,
     }
   }
 
@@ -230,17 +249,6 @@ function reducer(state: State, action: AnyAction): State {
       }
     }
 
-
-    /** Prevent same song from being queued back-to-back (Howler breaks for some reason.)  */
-    const playlist = [currentSong, ...queue];
-    const lastInList = playlist[Math.max(playlist.length - 1, 0)];
-    if (songsMatch(lastInList, found)) {
-      return {
-        ...state,
-        selection: { alpha: undefined, numeric: undefined, },
-      };
-    }
-
     /** Otherwise, put it in queue. */
     return {
       ...state,
@@ -283,6 +291,7 @@ function findRandom(library?: ExtendedSong[]) {
 function createCurrentSong(found: any): (PlayableSong & { howl: Howl; }) | undefined {
   return {
     ...found,
+    playId: uuidv4(),
     howl: createHowl(found),
   };
 }
@@ -308,13 +317,19 @@ function getKey(payload: string | undefined, alpha: string | undefined, numeric:
 export function ConfigProvider({ children }) {
   const [state, dispatch] = React.useReducer(reducer, initialState);
 
-  const [ resetIdleTimer ] = useResetInterval(() => {
-    if(state.pages && state.pages.length > 1){
+  const [resetIdleTimer] = useResetInterval(() => {
+    if (state.pages && state.pages.length > 1) {
       dispatch(changePage(1))
     }
   }, 30000);
 
+  useEffect(() => {
+    Howler.volume(state.volume);
+  }, [state.volume]);
+
   const handlers: Handlers = {
+    setVolume: (volume: number) => dispatch(setVolume(volume)),
+
     setPath: async path => {
       dispatch(setPath(path));
       dispatch(setLoading(true));
@@ -325,12 +340,7 @@ export function ConfigProvider({ children }) {
         console.time(`parseLibraryFromPath`)
         const library = await parseLibraryFromPath(path);
         console.timeEnd(`parseLibraryFromPath`)
-
-        console.time(`normalizeLibrary`)
-        const normalizedLibrary = setLibrary(library);
-        console.timeEnd(`normalizeLibrary`)
-        dispatch(normalizedLibrary);
-        dispatch(setLoading(false));
+        dispatch(setLibrary(library));
         resetIdleTimer();
       } catch (error) { }
     },
